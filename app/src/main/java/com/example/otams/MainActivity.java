@@ -1,5 +1,8 @@
 package com.example.otams;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -81,7 +84,31 @@ public class MainActivity extends AppCompatActivity {
 
         // Apply the adapter to the spinner
         spinner2.setAdapter(adapter2);
+
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                String selectedOption = parent.getItemAtPosition(position).toString();
+
+                if (selectedOption.equals("Tutor")) {
+                    // Open the second activity
+                    Intent intent = new Intent(MainActivity.this, TutorActivity.class);
+                    startActivity(intent);
+                }
+
+            }
+            public void onNothingSelected(AdapterView<?> parent ){
+                return;
+            }
+        });
+
+
+
     }
+
 
 
 }
