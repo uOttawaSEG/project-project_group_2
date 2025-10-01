@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         Spinner spinner2 = findViewById(R.id.program);
 
         String[] programs = {
+                "Select your program",
                 "Chemical and Biological Engineering",
                 "Civil Engineering",
                 "Mechanical Engineering",
