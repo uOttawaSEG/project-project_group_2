@@ -21,6 +21,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".TutorActivity"></activity>
+        <activity android:name=".WelcomeActivity"></activity>
     </application>
 
 </manifest>
+
+
+
+

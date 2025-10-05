@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -69,6 +70,18 @@ public class TutorActivity extends AppCompatActivity {
             }
             public void onNothingSelected(AdapterView<?> parent ){
                 return;
+            }
+        });
+
+        Button tutorRegisterBtn = findViewById(R.id.tutorRegisterBtn);
+
+        tutorRegisterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String role = "Tutor";
+                Intent intent = new Intent(TutorActivity.this, WelcomeActivity.class);
+                intent.putExtra("role", role);
+                startActivity(intent);
             }
         });
 
