@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,30 +86,47 @@ public class MainActivity extends AppCompatActivity {
         // Apply the adapter to the spinner
         spinner2.setAdapter(adapter2);
 
-
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
 
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 String selectedOption = parent.getItemAtPosition(position).toString();
-
                 if (selectedOption.equals("Tutor")) {
                     // Open the second activity
                     Intent intent = new Intent(MainActivity.this, TutorActivity.class);
                     startActivity(intent);
                 }
-
             }
             public void onNothingSelected(AdapterView<?> parent ){
                 return;
             }
         });
 
+        Button registerButton = findViewById(R.id.Registerbtn);
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+
+
+            public void onClick(View v) {
+                String role = "user";
+                if (spinner.getSelectedItem() != null) {
+                    role = spinner.getSelectedItem().toString();
+                }
+
+                String program = "";
+                if (spinner2.getSelectedItem() != null) {
+                    program = spinner2.getSelectedItem().toString();
+                }
+                Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
+                intent.putExtra("role", role);
+                intent.putExtra("program", program);
+
+                startActivity(intent);
+            }
+        });
 
 
     }
-
-
 
 }
