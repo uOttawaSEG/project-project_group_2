@@ -16,7 +16,7 @@ public class TutorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tutor);
 
 
-        Spinner spinner = findViewById(R.id.mySpinner);
+        Spinner spinner = findViewById(R.id.roleSpinner);
 
         // Define options directly in Java
         String[] options1 = {"Tutor", "Student"};
