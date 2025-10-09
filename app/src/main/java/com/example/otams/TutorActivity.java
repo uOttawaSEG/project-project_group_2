@@ -9,13 +9,25 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class TutorActivity extends AppCompatActivity {
+    private TextView loginbtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutor);
+        loginbtn = findViewById(R.id.textView);
+        loginbtn.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v){
+                Intent intent = new Intent(TutorActivity.this,LoginActivity.class);
+                startActivity(intent);
+            }
+        });
 
 
         Spinner spinner = findViewById(R.id.roleSpinner);

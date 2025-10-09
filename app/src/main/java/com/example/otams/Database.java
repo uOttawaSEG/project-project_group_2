@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import androidx.annotation.NonNull;
 
 public class Database extends SQLiteOpenHelper {
 
@@ -43,7 +44,25 @@ public class Database extends SQLiteOpenHelper {
                 Degree + " TEXT, " +
                 Course + " TEXT " + ")";
         db.execSQL(createTable);
+        ContentValues adminValues = getContentValues();
+        db.insert(TABLE_USERS, null, adminValues);
     }
+
+    @NonNull
+    private  static ContentValues getContentValues() {
+        ContentValues adminValues = new ContentValues();
+        adminValues.put(Role, "admin");
+        adminValues.put(FirstName, "Admin");
+        adminValues.put(LastName, "User");
+        adminValues.put(Email, "admin");
+        adminValues.put(Password, "admin");
+        adminValues.put(PhoneNum, "0000000000");
+        adminValues.put(Program, "");
+        adminValues.put(Degree, "");
+        adminValues.put(Course, "");
+        return adminValues;
+    }
+
     //Update the database everytime there is a change in data
     public void onUpgrade(SQLiteDatabase db, int Previous, int New){
         db.execSQL("DROP TABLE IF EXISTS "  + TABLE_USERS);
@@ -94,6 +113,36 @@ public class Database extends SQLiteOpenHelper {
         db.close();
 
         return count > 0;
+    }
+    public void resetDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        onCreate(db); // onCreate will create the table and insert admin
+        db.close();
+    }
+    public String getUserRole(String email, String password){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] columns = {Role};
+        String selection = Email + " = ? AND " + Password + " = ?";
+        String[] selectionArgs = {email, password};
+
+        Cursor cursor = db.query(TABLE_USERS,
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null);
+
+        String userRole = null;
+        if(cursor.moveToFirst()){
+            userRole = cursor.getString(cursor.getColumnIndexOrThrow(Role));
+        }
+
+        cursor.close();
+        db.close();
+        return userRole;
     }
 }
 

@@ -23,7 +23,6 @@ public class LoginActivity extends AppCompatActivity {
 
         EditText EmailView = findViewById(R.id.editTextTextEmailAddress);
         EditText PasswordView = findViewById(R.id.editTextTextPassword);
-        Spinner RoleView = findViewById(R.id.roleSpinner);
         loginTextView = findViewById(R.id.textView);
         loginTextView.setOnClickListener(new View.OnClickListener() {
 
@@ -39,8 +38,6 @@ public class LoginActivity extends AppCompatActivity {
 
         db = new Database(this);
 
-        setupRole(RoleView);
-
 
         Button loginButton = findViewById(R.id.Loginbtn);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -48,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String Email = EmailView.getText().toString();
                 String Password = PasswordView.getText().toString();
-                String Role = RoleView.getSelectedItem().toString();
+                String Role = db.getUserRole(Email,Password);
                 boolean isValid = true;
                 if (Email.isEmpty()) {
                     EmailView.setError("Email can't be empty");
@@ -70,12 +67,6 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void setupRole(Spinner spinner){
-        String[] roles = {"Student", "Tutor"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, roles);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-    }
     private void login(String role, String email, String password) {
         if (db.checkUser(email, password)){
             Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
