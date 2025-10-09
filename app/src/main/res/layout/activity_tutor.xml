@@ -153,12 +153,11 @@
                 android:id="@+id/tutorRegisterBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="56dp"
-                android:onClick="register"
+                android:layout_marginTop="360dp"
                 android:text="Register"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/degree" />
+                app:layout_constraintTop_toBottomOf="@+id/Register" />
 
             <TextView
                 android:id="@+id/textView"
@@ -178,10 +177,12 @@
                 android:layout_height="40dp"
                 android:text="Highest Degree"
                 android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/degree"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:layout_editor_absoluteY="325dp" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.745" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

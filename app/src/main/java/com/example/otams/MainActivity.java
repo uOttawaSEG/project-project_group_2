@@ -192,14 +192,13 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            User user = new User(role, FirstName, LastName, Email, Password, Phone);
+            User user = new Student(role, FirstName, LastName, Email, Password, Phone,program);
             Database db = new Database(this);
             db.addUser(user);
 
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             intent.putExtra("role", role);
             intent.putExtra("program", program);
-
             startActivity(intent);
             finish();
         } catch (IllegalArgumentException e) {

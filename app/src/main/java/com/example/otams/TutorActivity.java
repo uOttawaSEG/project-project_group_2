@@ -2,10 +2,12 @@ package com.example.otams;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -78,14 +80,86 @@ public class TutorActivity extends AppCompatActivity {
         tutorRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String role = "Tutor";
-                Intent intent = new Intent(TutorActivity.this, WelcomeActivity.class);
-                intent.putExtra("role", role);
-                startActivity(intent);
+                register();
             }
         });
 
 
 
+    }
+    private void register() {
+        try {
+            EditText FirstNameView = findViewById(R.id.editTextFirstName);
+            EditText LastNameView = findViewById(R.id.editTextLastName);
+            EditText EmailView = findViewById(R.id.editTextTextEmailAddress);
+            EditText PasswordView = findViewById(R.id.editTextTextPassword);
+            EditText PhoneView = findViewById(R.id.editTextPhone);
+            Spinner Hdegree = findViewById(R.id.degree);
+            EditText courses = findViewById(R.id.courses);
+            Spinner RoleView = findViewById(R.id.roleSpinner);
+
+            String FirstName = FirstNameView.getText().toString();
+            String LastName = LastNameView.getText().toString();
+            String Email = EmailView.getText().toString();
+            String Password = PasswordView.getText().toString();
+            String Phone = PhoneView.getText().toString();
+            String role = RoleView.getSelectedItem().toString();
+            String degree = Hdegree.getSelectedItem().toString();
+            String course = courses.getText().toString();
+
+            FirstNameView.setError(null);
+            LastNameView.setError(null);
+            EmailView.setError(null);
+            PasswordView.setError(null);
+            PhoneView.setError(null);
+            courses.setError(null);
+
+            if (FirstName.isEmpty()){
+                FirstNameView.setError("First name can't be empty");
+                FirstNameView.requestFocus();
+                return;
+            }
+            if (LastName.isEmpty()){
+                LastNameView.setError("Last name can't be empty");
+                LastNameView.requestFocus();
+                return;
+            }
+            if (Email.isEmpty()){
+                EmailView.setError("Email can't be empty");
+                EmailView.requestFocus();
+                return;
+            }
+            if (Password.isEmpty()){
+                PasswordView.setError("Password can't be empty");
+                PasswordView.requestFocus();
+                return;
+            }
+            if (Phone.isEmpty()){
+                PhoneView.setError("Phone number can't be empty");
+                PhoneView.requestFocus();
+                return;
+            } else if (Phone.length() != 10){
+                PhoneView.setError("Invalid phone number");
+                PhoneView.requestFocus();
+                return;
+            }
+            if (role.equals("Tutor") && degree.equals("select your highest degree")) {
+                EmailView.setError("Need to select your highest degree");
+                return;
+            }
+
+            User user = new Tutor(role, FirstName, LastName, Email, Password, Phone, degree, course);
+            Database db = new Database(this);
+            db.addUser(user);
+
+            Intent intent = new Intent(TutorActivity.this, LoginActivity.class);
+            intent.putExtra("role", role);
+            intent.putExtra("degree", degree);
+
+            startActivity(intent);
+            finish();
+        } catch (IllegalArgumentException e) {
+            Log.w("Registration Error","Missing required fields.");
+        }
     }
 }

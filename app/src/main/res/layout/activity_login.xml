@@ -8,9 +8,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="321dp"
         android:layout_height="480dp"
-        tools:layout_editor_absoluteX="45dp"
-        tools:layout_editor_absoluteY="156dp"
         android:background="#F0F4F8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header2"
         tools:ignore="MissingConstraints">
 
         <TextView
@@ -73,6 +75,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress" />
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="don't have an account yet ?"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Loginbtn"
+            app:layout_constraintVertical_bias="0.842" />
+
         <Button
             android:id="@+id/Loginbtn"
             android:layout_width="110dp"
@@ -94,7 +110,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:alpha="200"
         android:background="#0C6CBC"
@@ -110,8 +126,10 @@
         android:textColor="#FFFFFF"
         android:textColorHighlight="#2196F3"
         android:textColorHint="#9C27B0"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.059" />
 </androidx.constraintlayout.widget.ConstraintLayout>

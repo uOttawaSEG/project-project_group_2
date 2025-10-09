@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
     private Database db;
+    private TextView loginTextView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +24,15 @@ public class LoginActivity extends AppCompatActivity {
         EditText EmailView = findViewById(R.id.editTextTextEmailAddress);
         EditText PasswordView = findViewById(R.id.editTextTextPassword);
         Spinner RoleView = findViewById(R.id.roleSpinner);
+        loginTextView = findViewById(R.id.textView);
+        loginTextView.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v){
+                Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         String Email = EmailView.getText().toString();
         String Password = PasswordView.getText().toString();
@@ -30,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         db = new Database(this);
 
         setupRole(RoleView);
+
 
         Button loginButton = findViewById(R.id.Loginbtn);
         loginButton.setOnClickListener(new View.OnClickListener() {
