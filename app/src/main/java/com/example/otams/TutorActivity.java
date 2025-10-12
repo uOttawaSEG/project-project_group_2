@@ -109,6 +109,7 @@ public class TutorActivity extends AppCompatActivity {
             Spinner Hdegree = findViewById(R.id.degree);
             EditText courses = findViewById(R.id.courses);
             Spinner RoleView = findViewById(R.id.roleSpinner);
+            TextView DegreeView = findViewById(R.id.textView2);
 
             String FirstName = FirstNameView.getText().toString();
             String LastName = LastNameView.getText().toString();
@@ -117,7 +118,7 @@ public class TutorActivity extends AppCompatActivity {
             String Phone = PhoneView.getText().toString();
             String role = RoleView.getSelectedItem().toString();
             String degree = Hdegree.getSelectedItem().toString();
-            String course = courses.getText().toString();
+            String course = courses.getText().toString().toUpperCase();
 
             FirstNameView.setError(null);
             LastNameView.setError(null);
@@ -141,6 +142,11 @@ public class TutorActivity extends AppCompatActivity {
                 EmailView.requestFocus();
                 return;
             }
+            if (Email.indexOf('@') == -1 || Email.substring(Email.indexOf('@')).indexOf('.') == -1 || Email.substring(Email.indexOf('@')).indexOf('.') == Email.substring(Email.indexOf('@')).length() -1 ) {
+                EmailView.setError("Email must be in format ____@___.___");
+                EmailView.requestFocus();
+                return;
+            }
             if (Password.isEmpty()){
                 PasswordView.setError("Password can't be empty");
                 PasswordView.requestFocus();
@@ -156,8 +162,28 @@ public class TutorActivity extends AppCompatActivity {
                 return;
             }
             if (role.equals("Tutor") && degree.equals("select your highest degree")) {
-                EmailView.setError("Need to select your highest degree");
+                DegreeView.setError("Need to select your highest degree");
+                DegreeView.requestFocus();
                 return;
+            }
+            if (course.isEmpty()) {
+                courses.setError("Must offer at least 1 course");
+                courses.requestFocus();
+                return;
+            }
+
+            //ensures courses are provided in format abc1234
+            String[] courseList = course.split("/");
+            for (int i = 0; i < courseList.length; i++) {
+                if (courseList[i].length() != 7 || !Character.isLetter(courseList[i].charAt(0)) ||
+                    !Character.isLetter(courseList[i].charAt(1)) || !Character.isLetter(courseList[i].charAt(2)) ||
+                    !Character.isDigit(courseList[i].charAt(3)) || !Character.isDigit(courseList[i].charAt(4)) ||
+                    !Character.isDigit(courseList[i].charAt(5)) || !Character.isDigit(courseList[i].charAt(6))) {
+
+                    courses.setError("Course codes must be formatted ABC1234");
+                    courses.requestFocus();
+                    return;
+                }
             }
 
             User user = new Tutor(role, FirstName, LastName, Email, Password, Phone, degree, course);

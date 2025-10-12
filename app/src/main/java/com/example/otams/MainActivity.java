@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
             EditText PasswordView = findViewById(R.id.editTextTextPassword);
             EditText PhoneView = findViewById(R.id.editTextPhone);
             Spinner ProgramView = findViewById(R.id.program);
+            TextView ProgramText = findViewById((R.id.programTxt));
             Spinner RoleView = findViewById(R.id.roleSpinner);
 
             String FirstName = FirstNameView.getText().toString();
@@ -168,6 +169,11 @@ public class MainActivity extends AppCompatActivity {
                 EmailView.requestFocus();
                 return;
             }
+            if (Email.indexOf('@') == -1 || Email.substring(Email.indexOf('@')).indexOf('.') == -1 || Email.substring(Email.indexOf('@')).indexOf('.') == Email.substring(Email.indexOf('@')).length() -1 ) {
+                EmailView.setError("Email must be in format ____@___.___");
+                EmailView.requestFocus();
+                return;
+            }
             if (Password.isEmpty()){
                 PasswordView.setError("Password can't be empty");
                 PasswordView.requestFocus();
@@ -188,7 +194,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (role.equals("Student") && program.equals("Select your program")) {
-                EmailView.setError("Need to select a program");
+                ProgramText.setError("Need to select a program");
+                ProgramText.requestFocus();
                 return;
             }
 
