@@ -1,0 +1,69 @@
+@startuml OTAMS_Domain_Model
+
+class User {
+  - role: String
+  - firstName: String
+  - lastName: String
+  - email: String
+  - password: String
+  - phoneNum: String
+  + User(role, firstName, lastName, email, password, phoneNum)
+  + getRole(): String
+  + setRole(role: String): void
+  + getFirstName(): String
+  + setFirstName(firstName: String): void
+  + getLastName(): String
+  + setLastName(lastName: String): void
+  + getEmail(): String
+  + setEmail(): void
+  + getPassword(): String
+  + setPassword(password: String): void
+  + getPhoneNum(): String
+  + setPhoneNum(phoneNum: String): void
+}
+
+class Student {
+  - program: String
+  + Student(role, firstName, lastName, email, password, phoneNum, program)
+  + getProgram(): String
+  + setProgram(program: String): void
+}
+
+class Tutor {
+  - degree: String
+  - course: String
+  + Tutor(role, firstName, lastName, email, password, phoneNum, degree, course)
+  + getDegree(): String
+  + setDegree(degree: String): void
+  + getCourse(): String
+  + setCourse(course: String): void
+}
+
+class Database {
+  - TABLE_USERS: String {static}
+  - DATABASE_NAME: String {static}
+  - DATABASE_VERSION: int {static}
+  - Id: String {static}
+  - Role: String {static}
+  - FirstName: String {static}
+  - LastName: String {static}
+  - Email: String {static}
+  - Password: String {static}
+  - PhoneNum: String {static}
+  - Degree: String {static}
+  - Course: String {static}
+  - Program: String {static}
+  + Database(context: Context)
+  + onCreate(db: SQLiteDatabase): void
+  + onUpgrade(db: SQLiteDatabase, previous: int, newVersion: int): void
+  + addUser(user: User): void
+  + checkUser(email: String, password: String): boolean
+  + getUserRole(email: String, password: String): String
+  + resetDatabase(): void
+}
+
+User <|-- Student : inherits
+User <|-- Tutor : inherits
+Database "1" o-- "0..*" User : manages
+
+@enduml
