@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class RegistrationStatusActivity extends AppCompatActivity {
     private Database db;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,7 +26,7 @@ public class RegistrationStatusActivity extends AppCompatActivity {
             displayRequestDetails(request);
         }
 
-        // Back button
+        // return  button
         Button backButton = findViewById(R.id.returnButton);
         backButton.setOnClickListener(v -> finish());
     }
@@ -39,11 +41,13 @@ public class RegistrationStatusActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.statusText)).setText(request.getStatus());
 
 
-        // Show specific role wanted
+        // Show specific role chosen
         if ("Student".equals(request.getRole())) {
             findViewById(R.id.programLayout).setVisibility(View.VISIBLE);
             ((TextView) findViewById(R.id.programText)).setText(request.getProgram());
-        } else {
+        }
+
+        else {
             findViewById(R.id.programLayout).setVisibility(View.GONE);
         }
 
@@ -61,7 +65,7 @@ public class RegistrationStatusActivity extends AppCompatActivity {
 
         }
 
-        // Setup action buttons based on current status
+        // Setup action buttons based on status
         setupActionButtons(request);
     }
 
@@ -86,6 +90,8 @@ public class RegistrationStatusActivity extends AppCompatActivity {
                     finish();
                 });
                 break;
+
+
             case "Approved":
                 // Can set back to pending
                 addActionButton("Set to Pending", android.R.color.holo_orange_light, v -> {
@@ -117,7 +123,7 @@ public class RegistrationStatusActivity extends AppCompatActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
         );
-        params.setMargins(8, 0, 8, 0);
+
         button.setLayoutParams(params);
 
         ((LinearLayout) findViewById(R.id.buttonLayout)).addView(button);

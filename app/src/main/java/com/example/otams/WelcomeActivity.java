@@ -25,14 +25,15 @@ public class WelcomeActivity extends AppCompatActivity {
         String messageError;
         if(role == null){
           messageError = "Error, you need to login with a role ";
+        } else {
+
+
+            String message = "Welcome! you are logged as '" + role + "'";
+            welcomeText.setText(message);
         }
 
-        String message = "Welcome! you are logged as '" + role + "'";
-        welcomeText.setText(message);
 
         Button logOffBtn = findViewById(R.id.logOffBtn);
-
-
         logOffBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

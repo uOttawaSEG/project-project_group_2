@@ -14,7 +14,7 @@ public class Database extends SQLiteOpenHelper {
 
     private static final String TABLE_USERS = "users";
     private static final String DATABASE_NAME = "userInfo.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String Id = "id";
     private static final String Role = "role";
@@ -128,12 +128,7 @@ public class Database extends SQLiteOpenHelper {
         return count > 0;
     }
 
-    public void resetDatabase() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        onCreate(db); // onCreate will create the table and insert admin
-        db.close();
-    }
+
 
     public String getUserRole(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -188,15 +183,15 @@ public class Database extends SQLiteOpenHelper {
         db.close();
         return status;
     }
-        public List<RegistrationRequest> getPendingRegistrationRequests () {return getUserRegistrationStatus("Under Review");}
-        public List<RegistrationRequest> getApprovedRegistrationRequests () {return getUserRegistrationStatus("Approved");}
-        public List<RegistrationRequest> getRejectedRegistrationRequests () {return getUserRegistrationStatus("Rejected");}
+        public List<RegistrationRequest> getPendingRegistrationRequests () {return getRegistrationRequestsByStatus("Under Review");}
+        public List<RegistrationRequest> getApprovedRegistrationRequests (){return getRegistrationRequestsByStatus("Approved");}
+        public List<RegistrationRequest> getRejectedRegistrationRequests (){return getRegistrationRequestsByStatus("Rejected");}
 
 
 
 
 
-
+        //sort different request by status for the admin
         private List<RegistrationRequest> getRegistrationRequestsByStatus(String status) {
             List<RegistrationRequest> requests = new ArrayList<>();
             SQLiteDatabase db =this.getReadableDatabase();
@@ -235,13 +230,14 @@ public class Database extends SQLiteOpenHelper {
 
 
         public boolean approveRegistrationRequest(int userId) {
-            return updateRegistrationRequest(userId, "Approved");
+            return updateRegistrationStatus(userId, "Approved");
         }
-        public boolean rejectedRegistrationRequest(int userId) {
-            return updateRegistrationRequest(userId, "Rejected");
+        public  boolean rejectedRegistrationRequest(int userId){
+            return updateRegistrationStatus(userId, "Rejected");
         }
-        public boolean updateRegistrationRequest(int userId) {
-            return updateRegistrationRequest(userId, "Approval is pending");
+
+        public boolean  updateRegistrationRequest(int userId) {
+            return updateRegistrationStatus(userId, "Approval is pending");
         }
 
 

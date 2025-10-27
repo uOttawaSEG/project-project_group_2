@@ -68,15 +68,25 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String role, String email, String password) {
-        if (db.checkUser(email, password)){
+        //if admin check in data base for log in
+        if (db.checkUser(email, password) && role.equals("admin") && email.equals("admin@otams.ca")) {
+            Intent intent = new Intent(LoginActivity.this, AdminActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+        else if (db.checkUser(email, password)){
             Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
             intent.putExtra("role", role);
             startActivity(intent);
             finish();
-        } else {
+            return;
+        }
+         else {
             EditText PasswordView = findViewById(R.id.editTextTextPassword);
             PasswordView.setError("Incorrect Password. Try again");
             PasswordView.requestFocus();
+            return;
         }
 
     }

@@ -33,9 +33,8 @@ public class AdminActivity extends AppCompatActivity {
             finish();
         });
 
-        showRequests("pending");
-        showRequests("approved");
-        showRequests("rejected") ;
+        showRequests("pending", "approval is pending");
+
 
     }
 
@@ -54,14 +53,8 @@ public class AdminActivity extends AppCompatActivity {
 
         contentLayout.removeAllViews();
         List<RegistrationRequest> requests;
-        if(requests.isEmpty()){
 
-            TextView emptyText = new TextView(this);
-            emptyText.setText("No requests ");
-            contentLayout.addView(emptyText);
-            return;
-        }
-        else if (title.equals("Pending ")) {
+        if (title.equals("Pending ")) {
             requests = db.getPendingRegistrationRequests();
         } else if (title.equals("Approved ")) {
             requests = db.getApprovedRegistrationRequests();
@@ -97,6 +90,9 @@ public class AdminActivity extends AppCompatActivity {
             TextView programText = new TextView(this);
             programText.setText(request.getProgram());
             itemLayout.addView(programText);
+
+
+
 
              //approve/reject button for pending request
             if(title.equals("pending ")) {
