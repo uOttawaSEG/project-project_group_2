@@ -1,3 +1,3 @@
 the admin login informations are
-Email: admin
+Email: admin@otams.ca
 password: admin
