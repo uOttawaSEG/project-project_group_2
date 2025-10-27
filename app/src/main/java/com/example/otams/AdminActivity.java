@@ -1,6 +1,5 @@
 package com.example.otams;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,142 +13,154 @@ public class AdminActivity extends AppCompatActivity {
     private Database db;
     private TextView titleText;
     private LinearLayout contentLayout;
+    private String currentFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
+
+
+        //initialize the database
         db = new Database(this);
         contentLayout = findViewById(R.id.contentLayout);
         titleText = findViewById(R.id.titleText);
 
-        setupButton(R.id.pendingBtn, "pending", "approval is pending");
-        setupButton(R.id.approvedBtn, "approved", "approved");
-        setupButton(R.id.rejectedBtn, "Rejected ", "rejected");
+
+        setupButton(R.id.approvedBtn, "Approved", "Approved");
+        setupButton(R.id.rejectedBtn, "Rejected", "Rejected");
+        setupButton(R.id.pendingBtn, "Pending", "pending approval");
+
         Button returnButton = findViewById(R.id.returnButton);
         returnButton.setOnClickListener(v -> {
             Intent intent = new Intent(AdminActivity.this, MainActivity.class);
             startActivity(intent);
-            finish();
+            finish(); // Finish AdminActivity when returning
         });
 
-        showRequests("pending");
-        showRequests("approved");
-        showRequests("rejected") ;
-
+        // CHANGE: Load the initial view just once on create. "pending approval" is the status stored in the DB.
+        showRequests("Pending", "pending approval");
     }
 
-    private void setupButton(int buttonId, String title, String status){
+    // CHANGE: Simplified this method to just set an OnClickListener
+    private void setupButton(int buttonId, String title, String statusToFetch) {
         Button button = findViewById(buttonId);
-        button.setText(title);
-        button.setOnClickListener(v -> showRequests(title,  status));
-
+        // The text on the button can be set directly in your XML layout for simplicity
+        button.setOnClickListener(v -> showRequests(title, statusToFetch));
     }
 
-
-
-    private void showRequests(String title, String status) {
-
+    // CHANGE: Overhauled this entire method to be logical and prevent crashes.
+    private void showRequests(String title, String statusToFetch) {
         titleText.setText(title);
+        currentFilter = statusToFetch;
 
         contentLayout.removeAllViews();
         List<RegistrationRequest> requests;
-        if(requests.isEmpty()){
 
+
+
+        //fetch list based on status of users
+        if ("pending approval".equals(statusToFetch)) {
+            requests = db.getPendingRegistrationRequests();
+        } else if ("Approved".equals(statusToFetch)) {
+            requests = db.getApprovedRegistrationRequests();
+        } else {
+            requests = db.getRejectedRegistrationRequests();
+        }
+
+
+        if (requests.isEmpty()) {
             TextView emptyText = new TextView(this);
-            emptyText.setText("No requests ");
+            emptyText.setText("No requests found.");
+
+
             contentLayout.addView(emptyText);
             return;
         }
-        else if (title.equals("Pending ")) {
-            requests = db.getPendingRegistrationRequests();
-        } else if (title.equals("Approved ")) {
-            requests = db.getApprovedRegistrationRequests();
-        }
-        else {
-            requests = db.getRejectedRegistrationRequests();
 
-        }
 
-        //display every  request
         for (RegistrationRequest request : requests) {
-            LinearLayout itemLayout = new LinearLayout(this);
-            itemLayout.setOrientation(LinearLayout.VERTICAL);
-            itemLayout.setPadding(16, 16, 16, 16);
-            //request informations
-            //name
-            TextView nameText = new TextView(this);
-            nameText.setText(request.getFirstName() + " " + request.getLastName());
-            itemLayout.addView(nameText);
-            //email
-            TextView emailText = new TextView(this);
-            emailText.setText(request.getEmail());
-            itemLayout.addView(emailText);
-            //PhoneNum
-            TextView phoneText = new TextView(this);
-            phoneText.setText(request.getPhoneNum());
-            itemLayout.addView(phoneText);
-            //Degree
-            TextView degreeText = new TextView(this);
-            degreeText.setText(request.getDegree());
-            itemLayout.addView(degreeText);
-            //Program
-            TextView programText = new TextView(this);
-            programText.setText(request.getProgram());
-            itemLayout.addView(programText);
-
-             //approve/reject button for pending request
-            if(title.equals("pending ")) {
-                LinearLayout buttonLayout = new LinearLayout(this);
-                buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
-                Button approvedBtn = new Button(this);
-                approvedBtn.setText("Approved");
-                approvedBtn.setOnClickListener(v -> {
-                        db.approveRegistrationRequest(request.getUserId());
-                        showRequests(title, "Approved");});
-                //reject
-                Button rejectedBtn = new Button(this);
-                rejectedBtn.setText("Rejected");
-                rejectedBtn.setOnClickListener(v-> {
-                        db.rejectedRegistrationRequest(request.getUserId());
-                        showRequests(title, "Rejected");});
-
-                buttonLayout.addView(approvedBtn);
-                buttonLayout.addView(rejectedBtn);
-                itemLayout.addView(buttonLayout);
-
-
-            }
-
-
-            itemLayout.setOnClickListener(v->{
-                Intent intent = new Intent(AdminActivity.this, RegistrationStatusActivity.class);
-                intent.putExtra("userId", request.getUserId());
-                startActivity(intent);
-            });
-
-            //add the layout on the page
+            LinearLayout itemLayout = createRequestItemLayout(request);
             contentLayout.addView(itemLayout);
+
+            //separator for each user in list
             View separator = new View(this);
             separator.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 2
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    2
             ));
             separator.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
             contentLayout.addView(separator);
+        }
+    }
 
 
+    private LinearLayout createRequestItemLayout(RegistrationRequest request) {
+        LinearLayout itemLayout = new LinearLayout(this);
+        itemLayout.setOrientation(LinearLayout.VERTICAL);
+        itemLayout.setClickable(true);
+
+        itemLayout.setOnClickListener(v -> {
+            Intent intent = new Intent(AdminActivity.this, RegistrationStatusActivity.class);
+            intent.putExtra("request", request);
+            startActivity(intent);
+        });
 
 
+        TextView nameText = new TextView(this);
+        nameText.setText(request.getFirstName() + " " + request.getLastName());
 
+        itemLayout.addView(nameText);
+
+        TextView emailText = new TextView(this);
+        emailText.setText(request.getEmail());
+        itemLayout.addView(emailText);
+
+
+        if ("pending approval".equals(request.getStatus())) {
+            itemLayout.addView(createActionButtons(request));
         }
 
+        return itemLayout;
+    }
 
 
 
 
+    private LinearLayout createActionButtons(RegistrationRequest request) {
+        LinearLayout buttonLayout = new LinearLayout(this);
+        buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+        buttonLayout.setPadding(0, 16, 0, 0);
+
+        Button approveButton = new Button(this);
+        approveButton.setText("Approve");
+        approveButton.setOnClickListener(v -> {
+            db.approveRegistrationRequest(request.getUserId());
+
+            showRequests(titleText.getText().toString(), currentFilter);
+        });
+
+        Button rejectButton = new Button(this);
+        rejectButton.setText("Reject");
+        rejectButton.setOnClickListener(v -> {
+            db.rejectedRegistrationRequest(request.getUserId());
+            showRequests(titleText.getText().toString(), currentFilter);
+        });
 
 
+        buttonLayout.addView(approveButton);
+        buttonLayout.addView(rejectButton);
+
+        return buttonLayout;
+    }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (currentFilter != null) {
+            showRequests(titleText.getText().toString(), currentFilter);
+        }
     }
 }

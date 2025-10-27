@@ -1,28 +1,27 @@
 package com.example.otams;
 import com.example.otams.Database;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LoginActivity extends AppCompatActivity {
-    private Database db;
+    private Database db ;
     private TextView loginTextView;
+    private EditText EmailView;
+    private EditText PasswordView;
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        EditText EmailView = findViewById(R.id.editTextTextEmailAddress);
-        EditText PasswordView = findViewById(R.id.editTextTextPassword);
+        db = new Database(this);
+        // Initialize views
+        EmailView = findViewById(R.id.editTextTextEmailAddress);
+        PasswordView = findViewById(R.id.editTextTextPassword);
         loginTextView = findViewById(R.id.textView);
         loginTextView.setOnClickListener(new View.OnClickListener() {
 
@@ -36,48 +35,66 @@ public class LoginActivity extends AppCompatActivity {
         String Email = EmailView.getText().toString();
         String Password = PasswordView.getText().toString();
 
-        db = new Database(this);
-
 
         Button loginButton = findViewById(R.id.Loginbtn);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String Email = EmailView.getText().toString();
-                String Password = PasswordView.getText().toString();
-                String Role = db.getUserRole(Email,Password);
-                boolean isValid = true;
-                if (Email.isEmpty()) {
-                    EmailView.setError("Email can't be empty");
-                    EmailView.requestFocus();
-                    isValid = false;
-                }
-                if (Password.isEmpty()) {
-                    PasswordView.setError("Password can't be empty");
-                    PasswordView.requestFocus();
-                    isValid = false;
-                }
+                login();
 
-                if (isValid){
-                    login(Role, Email, Password);
-                }
 
             }
         });
 
     }
 
-    private void login(String role, String email, String password) {
-        if (db.checkUser(email, password)){
-            Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
-            intent.putExtra("role", role);
+    private void login() {
+        String email = EmailView.getText().toString();
+        String password = PasswordView.getText().toString();
+
+
+        //if admin check in data base for log in
+        if (email.isEmpty()) {
+            EmailView.setError("Email is required");
+            EmailView.requestFocus();
+            return;
+        }
+         if (password.isEmpty()){
+            PasswordView.setError("Password is required");
+            PasswordView.requestFocus();
+            return;
+        }
+
+        if(email.equals("admin@otams.ca")&& password.equals("admin")){
+            Intent intent = new Intent(LoginActivity.this, AdminActivity.class);
             startActivity(intent);
             finish();
-        } else {
-            EditText PasswordView = findViewById(R.id.editTextTextPassword);
-            PasswordView.setError("Incorrect Password. Try again");
+            return;
+        }
+
+        if(db.checkUser(email, password)){
+            String userRole = db.getUserRole(email, password);
+            Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class) ;
+            intent.putExtra("role", userRole);
+
+            startActivity(intent);
+            finish();
+            return;
+
+        } else{ //if login fails
+            String status = db.getUserRegistrationStatus(email, password);
+            if(status != null){
+                if(status.equals("pending approval")){
+                    PasswordView.setError("Your registration is pending approval");
+                } else if(status.equals("Rejected")){
+                    PasswordView.setError("Your registration has been rejected, please contact 613 777 6789");
+                }else {
+                    PasswordView.setError("Invalid email or password");
+                }
+            }  else {PasswordView.setError("Invalid email or password");}
+
             PasswordView.requestFocus();
+        }
         }
 
     }
-}

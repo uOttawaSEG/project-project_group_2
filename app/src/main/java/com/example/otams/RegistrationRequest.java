@@ -1,6 +1,6 @@
 package com.example.otams;
 
-public class RegistrationRequest {
+public class RegistrationRequest implements java.io.Serializable {
     private int userId;
     private String role;
     private String firstName;
@@ -29,7 +29,7 @@ public class RegistrationRequest {
     public void setEmail(String email) { this.email = email; }
     public String getPhoneNum() { return phoneNum; }
     public void setPhoneNum(String phoneNum) { this.phoneNum = phoneNum; }
-    public String getProgram() { return program; }
+    public String getProgram() { return program;  }
     public void setProgram(String program) { this.program = program; }
     public String getDegree() { return degree; }
     public void setDegree(String degree) { this.degree = degree; }

@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.NonNull;
-import java.util.Date;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +14,8 @@ public class Database extends SQLiteOpenHelper {
 
     private static final String TABLE_USERS = "users";
     private static final String DATABASE_NAME = "userInfo.db";
-    private static final int DATABASE_VERSION = 3;
+
+    private static final int DATABASE_VERSION = 4;
 
     private static final String Id = "id";
     private static final String Role = "role";
@@ -34,9 +35,10 @@ public class Database extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    //Create the initial database among with all the variable type
+    //Create the database
     @Override
     public void onCreate(SQLiteDatabase db) {
+
         String createTable = "CREATE TABLE " + TABLE_USERS + "(" +
                 Id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 Role + " TEXT, " +
@@ -47,10 +49,15 @@ public class Database extends SQLiteOpenHelper {
                 PhoneNum + " TEXT, " +
                 Program + " TEXT, " +
                 Degree + " TEXT, " +
-                Course + " TEXT " +
-                Status + " TEXT DEFAULT 'Under Review', " +
-                RegistrationDate + "DOUBLE, " + ')';
+
+                Course + " TEXT, " +
+
+                Status + " TEXT DEFAULT 'pending approval', " +
+
+                RegistrationDate + " REAL" + ")";
         db.execSQL(createTable);
+
+
         ContentValues adminValues = getContentValues();
         db.insert(TABLE_USERS, null, adminValues);
     }
@@ -90,7 +97,8 @@ public class Database extends SQLiteOpenHelper {
         value.put(Password, user.getPassword());
         value.put(PhoneNum, user.getPhoneNum());
         value.put(RegistrationDate, System.currentTimeMillis());
-        value.put(Status, "approval is pending"); //waiting for admin approval for every new User
+        // CHANGE: Kept status consistent with the rest of the app. This is the value used when a new user registers.
+        value.put(Status, "pending approval");
 
 
         if (user instanceof Student) {
@@ -102,20 +110,24 @@ public class Database extends SQLiteOpenHelper {
             value.put(Course, tutor.getCourse());
         }
         db.insert(TABLE_USERS, null, value);
-        db.close();
+
     }
+
 
     public boolean checkUser(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String[] columns = {Email, Password};
-        String query = (Email + " = ? AND " + Password + " =? AND" + Status + " = ?");
-        String[] args = {email, password, "Approved"};      //if approved == possible to log in
+
+        String[] columns = {Id};
+
+        String selection = Email + " = ? AND " + Password + " = ? AND " + Status + " = ?";
+
+        String[] selectionArgs = {email, password, "Approved"};
 
         Cursor cursor = db.query(TABLE_USERS,
                 columns,
-                query,
-                args,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 null);
@@ -123,23 +135,18 @@ public class Database extends SQLiteOpenHelper {
         int count = cursor.getCount();
 
         cursor.close();
-        db.close();
 
         return count > 0;
     }
 
-    public void resetDatabase() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        onCreate(db); // onCreate will create the table and insert admin
-        db.close();
-    }
+
 
     public String getUserRole(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String[] columns = {Role};
-        String selection = Email + " = ? AND " + Password + " = ? AND" + Status + " = ?";
+
+        String selection = Email + " = ? AND " + Password + " = ? AND " + Status + " = ?";
         String[] selectionArgs = {email, password, "Approved"};
 
         Cursor cursor = db.query(TABLE_USERS,
@@ -153,24 +160,21 @@ public class Database extends SQLiteOpenHelper {
         String userRole = null;
         if (cursor.moveToFirst()) {
             userRole = cursor.getString(cursor.getColumnIndexOrThrow(Role));
-            cursor.close();
-            db.close();
-            return userRole;
+
+
         }
 
         cursor.close();
-        db.close();
         return userRole;
     }
-
-
     public String getUserRegistrationStatus(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String[] columns = {Status};
-        String selection = Email +" = ? AND " + Password + " = ? AND" +Status + " = ?";
-        String[] selectionArgs = {email, password};
 
+        String selection = Email +" = ? AND " + Password + " = ?";
+
+        String[] selectionArgs = {email, password};
         Cursor cursor = db.query(TABLE_USERS,
                 columns,
                 selection,
@@ -181,83 +185,89 @@ public class Database extends SQLiteOpenHelper {
         String status = null;
         if (cursor.moveToFirst()) {
             status = cursor.getString(cursor.getColumnIndexOrThrow(Status));
-
-
         }
         cursor.close();
-        db.close();
         return status;
     }
-        public List<RegistrationRequest> getPendingRegistrationRequests () {return getUserRegistrationStatus("Under Review");}
-        public List<RegistrationRequest> getApprovedRegistrationRequests () {return getUserRegistrationStatus("Approved");}
-        public List<RegistrationRequest> getRejectedRegistrationRequests () {return getUserRegistrationStatus("Rejected");}
+
+    public List<RegistrationRequest> getPendingRegistrationRequests() {
+        return getRegistrationRequestsByStatus("pending approval");
+    }
+
+    public List<RegistrationRequest> getApprovedRegistrationRequests() {
+        return getRegistrationRequestsByStatus("Approved");
+
+    }
 
 
+    public List<RegistrationRequest> getRejectedRegistrationRequests() {
+        return getRegistrationRequestsByStatus("Rejected");
+    }
 
+    // CHANGE: Made this method private as it's an internal helper.
+    private List<RegistrationRequest> getRegistrationRequestsByStatus(String status) {
+        List<RegistrationRequest> requests = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        String query = "SELECT * FROM " + TABLE_USERS
+                + " WHERE " + Status + " = ?"
+                + " ORDER BY "+ RegistrationDate + " DESC";
 
+        Cursor cursor = db.rawQuery(query, new String[]{status});
 
-        private List<RegistrationRequest> getRegistrationRequestsByStatus(String status) {
-            List<RegistrationRequest> requests = new ArrayList<>();
-            SQLiteDatabase db =this.getReadableDatabase();
+        if (cursor.moveToFirst()){
+            do {
+                RegistrationRequest request = new RegistrationRequest();
+                request.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(Id)));
+                request.setRole(cursor.getString(cursor.getColumnIndexOrThrow(Role)));
+                request.setFirstName(cursor.getString(cursor.getColumnIndexOrThrow(FirstName)));
+                request.setLastName(cursor.getString(cursor.getColumnIndexOrThrow(LastName)));
+                request.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(Email)));
+                request.setPhoneNum(cursor.getString(cursor.getColumnIndexOrThrow(PhoneNum)));
+                request.setProgram(cursor.getString(cursor.getColumnIndexOrThrow(Program)));
+                request.setDegree(cursor.getString(cursor.getColumnIndexOrThrow(Degree)));
+                request.setCourse(cursor.getString(cursor.getColumnIndexOrThrow(Course)));
+                request.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(Status)));
 
-            String query = "SELECT * FROM " + TABLE_USERS
-                    + " WHERE " + Status + " = ?"
-                    + " ORDER BY "+RegistrationDate + " DESC";
+                //date
+                request.setRegistrationDate(cursor.getLong(cursor.getColumnIndexOrThrow(RegistrationDate))) ;
 
-            Cursor cursor = db.rawQuery(query, new String[]{status});
-
-            if (cursor.moveToFirst()){
-                do {
-                    RegistrationRequest request = new RegistrationRequest();
-                    request.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(Id)));
-                    request.setRole(cursor.getString(cursor.getColumnIndexOrThrow(Role)));
-                    request.setFirstName(cursor.getString(cursor.getColumnIndexOrThrow(FirstName)));
-                    request.setLastName(cursor.getString(cursor.getColumnIndexOrThrow(LastName)));
-                    request.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(Email)));
-                    request.setPhoneNum(cursor.getString(cursor.getColumnIndexOrThrow(PhoneNum)));
-                    request.setProgram(cursor.getString(cursor.getColumnIndexOrThrow(Program)));
-                    request.setDegree(cursor.getString(cursor.getColumnIndexOrThrow(Degree)));
-                    request.setCourse(cursor.getString(cursor.getColumnIndexOrThrow(Course)));
-                    request.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(Status)));
-                    request.setRegistrationDate(cursor.getDouble(cursor.getColumnIndexOrThrow(RegistrationDate))) ;
-
-
-                    requests.add(request);
-                } while (cursor.moveToNext());
-            }
-
-            cursor.close();
-            db.close();
-            return requests;
+                requests.add(request);
+            } while (cursor.moveToNext());
         }
 
+        cursor.close();
 
+        return requests;
+    }
 
-        public boolean approveRegistrationRequest(int userId) {
-            return updateRegistrationRequest(userId, "Approved");
-        }
-        public boolean rejectedRegistrationRequest(int userId) {
-            return updateRegistrationRequest(userId, "Rejected");
-        }
-        public boolean updateRegistrationRequest(int userId) {
-            return updateRegistrationRequest(userId, "Approval is pending");
-        }
+    public boolean approveRegistrationRequest(int userId) {
 
+        return updateRegistrationStatus(userId, "Approved");
+    }
 
-        private boolean updateRegistrationStatus(int userId, String status){
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(Status, status );
-
-            int updatedRows = db.update(TABLE_USERS,values, Id + " = ?" , new String[]{String.valueOf(userId)});
-            db.close();
-            return updatedRows > 0;
+    public boolean rejectedRegistrationRequest(int userId) {
+        return updateRegistrationStatus(userId, "Rejected");
     }
 
 
 
 
+    public boolean setRegistrationToPending(int userId) {
+        // CHANGE: Corrected the method being called and the status string.
+        return updateRegistrationStatus(userId, "pending approval");
+    }
+
+
+    private boolean updateRegistrationStatus(int userId, String newStatus){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Status, newStatus);
+
+
+        int updatedRows = db.update(TABLE_USERS, values, Id + " = ?", new String[]{String.valueOf(userId)});
+        return updatedRows > 0;
+    }
 
     public RegistrationRequest getUserById(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -277,12 +287,12 @@ public class Database extends SQLiteOpenHelper {
             request.setDegree(cursor.getString(cursor.getColumnIndexOrThrow(Degree)));
             request.setCourse(cursor.getString(cursor.getColumnIndexOrThrow(Course)));
             request.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(Status)));
-            request.setRegistrationDate(cursor.getDouble(cursor.getColumnIndexOrThrow(RegistrationDate)));
-
+            // CHANGE: Changed getDouble to getLong for timestamps.
+            request.setRegistrationDate(cursor.getLong(cursor.getColumnIndexOrThrow(RegistrationDate)));
         }
 
         cursor.close();
-        db.close();
+
         return request;
     }
 
@@ -290,13 +300,15 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
-        db.close();
+
     }
 
 
 
 
+
 }
+
 
 
 

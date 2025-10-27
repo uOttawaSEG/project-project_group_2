@@ -17,16 +17,16 @@ public class RegistrationStatusActivity extends AppCompatActivity {
 
         db = new Database(this);
 
-        // Get the request from intent
+
         RegistrationRequest request = (RegistrationRequest) getIntent().getSerializableExtra("request");
 
         if (request != null) {
             displayRequestDetails(request);
         }
 
-        // Back button
-        Button backButton = findViewById(R.id.returnButton);
-        backButton.setOnClickListener(v -> finish());
+
+        Button returnButton = findViewById(R.id.returnButton);
+        returnButton.setOnClickListener(v -> finish());
     }
 
     private void displayRequestDetails(RegistrationRequest request) {
@@ -61,7 +61,7 @@ public class RegistrationStatusActivity extends AppCompatActivity {
 
         }
 
-        // Setup action buttons based on current status
+
         setupActionButtons(request);
     }
 
@@ -69,43 +69,48 @@ public class RegistrationStatusActivity extends AppCompatActivity {
 
 
 
-    private void setupActionButtons(RegistrationRequest request) {
-
-        LinearLayout buttonLayout = findViewById(R.id.buttonLayout);
+    private void setupActionButtons(RegistrationRequest request) {        LinearLayout buttonLayout = findViewById(R.id.buttonLayout);
         buttonLayout.removeAllViews();
 
         switch (request.getStatus()) {
+
             case "Under Review":
-                // Can approve or reject pending requests
+                //approve/reject a user
                 addActionButton("Approve", android.R.color.holo_green_light, v -> {
                     db.approveRegistrationRequest(request.getUserId());
                     finish(); // Go back to admin screen
                 });
                 addActionButton("Reject", android.R.color.holo_red_light, v -> {
+                    // Corrected method name to match Database.java
                     db.rejectedRegistrationRequest(request.getUserId());
                     finish();
                 });
                 break;
-            case "Approved":
-                // Can set back to pending
+
+            case "Approved" :
+
                 addActionButton("Set to Pending", android.R.color.holo_orange_light, v -> {
-                    db.updateRegistrationRequest(request.getUserId());
+
+                    db.setRegistrationToPending(request.getUserId());
                     finish();
                 });
                 break;
+
             case "Rejected":
-                // Can approve or set to pending
                 addActionButton("Approve", android.R.color.holo_green_light, v -> {
+
                     db.approveRegistrationRequest(request.getUserId());
                     finish();
                 });
                 addActionButton("Set to Pending", android.R.color.holo_orange_light, v -> {
-                    db.updateRegistrationRequest(request.getUserId());
+
+                    db.setRegistrationToPending(request.getUserId());
                     finish();
                 });
                 break;
         }
     }
+
 
 
     private void addActionButton(String text, int colorRes, View.OnClickListener listener) {
