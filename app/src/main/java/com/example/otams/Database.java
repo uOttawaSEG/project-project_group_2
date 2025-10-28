@@ -97,7 +97,7 @@ public class Database extends SQLiteOpenHelper {
         value.put(Password, user.getPassword());
         value.put(PhoneNum, user.getPhoneNum());
         value.put(RegistrationDate, System.currentTimeMillis());
-        // CHANGE: Kept status consistent with the rest of the app. This is the value used when a new user registers.
+
         value.put(Status, "pending approval");
 
 
@@ -204,7 +204,7 @@ public class Database extends SQLiteOpenHelper {
         return getRegistrationRequestsByStatus("Rejected");
     }
 
-    // CHANGE: Made this method private as it's an internal helper.
+
     private List<RegistrationRequest> getRegistrationRequestsByStatus(String status) {
         List<RegistrationRequest> requests = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -246,7 +246,7 @@ public class Database extends SQLiteOpenHelper {
         return updateRegistrationStatus(userId, "Approved");
     }
 
-    public boolean rejectedRegistrationRequest(int userId) {
+    public boolean rejecteRegistrationRequest(int userId) {
         return updateRegistrationStatus(userId, "Rejected");
     }
 
@@ -254,7 +254,7 @@ public class Database extends SQLiteOpenHelper {
 
 
     public boolean setRegistrationToPending(int userId) {
-        // CHANGE: Corrected the method being called and the status string.
+
         return updateRegistrationStatus(userId, "pending approval");
     }
 

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">OTAMS</string>
+    <string name="approved">Approved</string>
+    <string name="rejected">Rejected</string>
+    <string name="pending">Pending</string>
+    <string name="pending_requests">Pending Requests</string>
+    <string name="back">Back</string>
+    <string name="list_of_registration_request"><![CDATA["    <string name=\"list_of_registration_requests\">List of registration requests</string>\n    "]]></string>
 </resources>
