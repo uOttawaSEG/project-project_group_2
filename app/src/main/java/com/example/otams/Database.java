@@ -50,10 +50,11 @@ public class Database extends SQLiteOpenHelper {
                 PhoneNum + " TEXT, " +
                 Program + " TEXT, " +
                 Degree + " TEXT, " +
-                Course + " TEXT " +
+                Course + " TEXT, " +
                 Status + " TEXT DEFAULT 'Under Review', " +
-                RegistrationDate + "DOUBLE, " + ')';
-    db.execSQL(createTable);
+                RegistrationDate + " REAL" +
+                ")";
+        db.execSQL(createTable);
 
     // Create availability_slots table for tutor availability
     String createSlots = "CREATE TABLE IF NOT EXISTS availability_slots (" +
@@ -232,6 +233,14 @@ public class Database extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return status;
+    }
+    public boolean rejecteRegistrationRequest(int userId) {
+        return updateRegistrationStatus(userId, "Rejected");
+    }
+
+    public boolean setRegistrationToPending(int userId) {
+
+        return updateRegistrationStatus(userId, "pending approval");
     }
         public List<RegistrationRequest> getPendingRegistrationRequests () {return getRegistrationRequestsByStatus("Under Review");}
         public List<RegistrationRequest> getApprovedRegistrationRequests (){return getRegistrationRequestsByStatus("Approved");}
@@ -508,9 +517,3 @@ public class Database extends SQLiteOpenHelper {
 
 
 }
-
-
-
-
-
-
