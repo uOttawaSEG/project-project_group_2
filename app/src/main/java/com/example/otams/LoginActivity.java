@@ -87,10 +87,19 @@ public class LoginActivity extends AppCompatActivity {
         // Check for regular user credentials
         if (db.checkUser(email, password)) {
             String userRole = db.getUserRole(email, password);
-            Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
-            intent.putExtra("role", userRole);
-            startActivity(intent);
-            finish();
+
+            if ("Tutor".equalsIgnoreCase(userRole)){
+                Intent intent = new Intent(LoginActivity.this, TutorConsoleActivity.class);
+                intent.putExtra("role", userRole);
+                startActivity(intent);
+                finish();
+            }
+            else {
+                Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
+                intent.putExtra("role", userRole);
+                startActivity(intent);
+                finish();
+            }
             return;
         } else { // Handle failed login
             String status = db.getUserRegistrationStatus(email, password);

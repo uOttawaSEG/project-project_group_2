@@ -15,7 +15,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String TABLE_USERS = "users";
     private static final String DATABASE_NAME = "userInfo.db";
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private static final String Id = "id";
     private static final String Role = "role";
@@ -30,6 +30,12 @@ public class Database extends SQLiteOpenHelper {
     private static final String Program = "program";
     private static final String RegistrationDate = "registrationDate";
     private static final String Status = "status";
+
+    private static final String slotTable = "slots";
+    private static final String idSlot = "id";
+    private static final String dateSlot = "date";
+    private static final String startTimeSlot = "start_time";
+    private static final String endTimeSlot = "end_time";
 
     public Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -57,6 +63,14 @@ public class Database extends SQLiteOpenHelper {
                 RegistrationDate + " REAL" + ")";
         db.execSQL(createTable);
 
+        String CREATE_SLOTS_TABLE = "CREATE TABLE " + slotTable + "("
+                + idSlot + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + dateSlot + " TEXT, "
+                + startTimeSlot + " TEXT, "
+                + endTimeSlot + " TEXT, "
+                + " UNIQUE (" + dateSlot + ", " + startTimeSlot + ", " + endTimeSlot + ")"
+                + ")";
+        db.execSQL(CREATE_SLOTS_TABLE);
 
         ContentValues adminValues = getContentValues();
         db.insert(TABLE_USERS, null, adminValues);
@@ -83,6 +97,7 @@ public class Database extends SQLiteOpenHelper {
     //Update the database everytime there is a change in data
     public void onUpgrade(SQLiteDatabase db, int Previous, int New) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + slotTable);
         onCreate(db);
     }
 
@@ -161,7 +176,6 @@ public class Database extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             userRole = cursor.getString(cursor.getColumnIndexOrThrow(Role));
 
-
         }
 
         cursor.close();
@@ -193,12 +207,10 @@ public class Database extends SQLiteOpenHelper {
     public List<RegistrationRequest> getPendingRegistrationRequests() {
         return getRegistrationRequestsByStatus("pending approval");
     }
-
     public List<RegistrationRequest> getApprovedRegistrationRequests() {
         return getRegistrationRequestsByStatus("Approved");
 
     }
-
 
     public List<RegistrationRequest> getRejectedRegistrationRequests() {
         return getRegistrationRequestsByStatus("Rejected");
@@ -250,9 +262,6 @@ public class Database extends SQLiteOpenHelper {
         return updateRegistrationStatus(userId, "Rejected");
     }
 
-
-
-
     public boolean setRegistrationToPending(int userId) {
 
         return updateRegistrationStatus(userId, "pending approval");
@@ -303,9 +312,23 @@ public class Database extends SQLiteOpenHelper {
 
     }
 
+    //Add a tutor timetable slot for the database
+    public long addSlot(String date, String startTime, String endTime){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
 
+        values.put(dateSlot, date);
+        values.put(startTimeSlot, startTime);
+        values.put(endTimeSlot, endTime);
 
-
+        long result = db.insertWithOnConflict(slotTable,null,values,SQLiteDatabase.CONFLICT_REPLACE);
+        db.close();
+        return result;
+    }
+    public Cursor getAllSlots(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + slotTable + " ORDER BY " + dateSlot + " ASC, " + startTimeSlot + " ASC", null);
+    }
 
 }
 

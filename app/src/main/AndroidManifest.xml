@@ -24,6 +24,10 @@
         <activity android:name=".LoginActivity" android:exported="false"/>
         <activity android:name=".WelcomeActivity" android:exported="false"/>
         <activity android:name=".AdminActivity" android:exported="false"/>
+        <activity android:name=".TutorConsoleActivity" android:exported="false"/>
+        <activity android:name=".TimeSlotActivity" android:exported="false"/>
+
+
     </application>
 
 

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView12"
+        android:layout_width="139dp"
+        android:layout_height="56dp"
+        android:background="@android:color/holo_blue_bright"
+        android:text="OTAMS"
+        android:textColor="@android:color/white"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textView5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/addButton"
+        android:layout_width="110dp"
+        android:layout_height="62dp"
+        android:layout_marginBottom="68dp"
+        android:text="Add"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="329dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="136dp"
+        android:text="Fill out the below information to create a time slot as tutor "
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.573"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="335dp"
+        android:layout_height="329dp"
+        android:background="@color/material_dynamic_neutral80"
+        app:layout_constraintBottom_toTopOf="@+id/addButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.539"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:layout_constraintVertical_bias="0.336" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/dateInputLayout"
+        app:layout_constraintEnd_toEndOf="@id/textView9"
+        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintStart_toStartOf="@id/textView9"
+        app:layout_constraintTop_toTopOf="@id/textView9"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/dateText"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:layout_marginTop="32dp"
+            android:clickable="true"
+            android:ems="10"
+            android:focusable="true"
+            android:hint="Select a Date"
+            android:inputType="text"
+            android:textSize="24dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/startTimeInputLayout"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView9"
+        app:layout_constraintHorizontal_bias="0.384"
+        app:layout_constraintStart_toStartOf="@+id/textView9"
+        app:layout_constraintTop_toBottomOf="@+id/dateInputLayout">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/startTime"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginTop="36dp"
+            android:clickable="true"
+            android:ems="10"
+            android:focusable="true"
+            android:hint="Starting Time (e.g, 08:30)"
+            android:inputType="text"
+            android:textSize="24dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/endTimeInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/textView9"
+        app:layout_constraintEnd_toEndOf="@+id/textView9"
+        app:layout_constraintHorizontal_bias="0.36"
+        app:layout_constraintStart_toStartOf="@+id/textView9"
+        app:layout_constraintTop_toBottomOf="@id/startTimeInputLayout"
+        app:layout_constraintVertical_bias="0.446">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/endTime"
+            android:layout_width="match_parent"
+            android:layout_height="78dp"
+            android:clickable="true"
+            android:ems="10"
+            android:focusable="true"
+            android:hint="Ending Time (e.g, 16:30)"
+            android:inputType="text"
+            android:textSize="24dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
