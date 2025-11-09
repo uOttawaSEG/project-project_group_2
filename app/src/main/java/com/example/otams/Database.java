@@ -33,9 +33,14 @@ public class Database extends SQLiteOpenHelper {
 
     private static final String slotTable = "slots";
     private static final String idSlot = "id";
+    private static final String tutorIdSlot = "tutorId";
     private static final String dateSlot = "date";
     private static final String startTimeSlot = "start_time";
     private static final String endTimeSlot = "end_time";
+
+
+
+
 
     public Database(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -65,16 +70,20 @@ public class Database extends SQLiteOpenHelper {
 
         String CREATE_SLOTS_TABLE = "CREATE TABLE " + slotTable + "("
                 + idSlot + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + tutorIdSlot + " INTEGER NOT NULL, "
                 + dateSlot + " TEXT, "
                 + startTimeSlot + " TEXT, "
                 + endTimeSlot + " TEXT, "
-                + " UNIQUE (" + dateSlot + ", " + startTimeSlot + ", " + endTimeSlot + ")"
+                +  "FOREIGN KEY(" + tutorIdSlot + ") REFERENCES " + TABLE_USERS + "(" + Id  +  "), "
+                + " UNIQUE (" + tutorIdSlot + ", " + dateSlot + ", " + startTimeSlot + ", " + endTimeSlot + ")"
                 + ")";
         db.execSQL(CREATE_SLOTS_TABLE);
 
         ContentValues adminValues = getContentValues();
         db.insert(TABLE_USERS, null, adminValues);
     }
+
+
 
     @NonNull
     private static ContentValues getContentValues() {

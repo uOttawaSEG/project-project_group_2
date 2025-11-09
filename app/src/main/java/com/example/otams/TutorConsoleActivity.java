@@ -19,6 +19,7 @@ public class TutorConsoleActivity  extends AppCompatActivity {
     private Database db;
     private LinearLayout slotList;
     private Button createButton;
+    private Button logOffBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +43,24 @@ public class TutorConsoleActivity  extends AppCompatActivity {
                 finish();
                 return;
             }
+            logOffBtn = findViewById(R.id.logOffBtn);
 
-            //When clicked, open the page for TimeSlotActivity
+            //onClick for create time slot
             createButton.setOnClickListener(v -> {
                 Intent intent = new Intent(TutorConsoleActivity.this, TimeSlotActivity.class);
                 startActivity(intent);
             });
+            // onClick for log off btn
+            logOffBtn.setOnClickListener(v -> {
+                Intent intent = new Intent(TutorConsoleActivity.this, MainActivity.class);
+
+                startActivity(intent);
+
+            });
+
+
+
+
             Log.d(tag,"onCreate worked");
         } catch(Exception e){
             Log.e(tag,"Crash in OnCreate",e);
