@@ -19,6 +19,8 @@ public class TimeSlotActivity extends AppCompatActivity{
     private TextInputLayout dateInputLayout, startTimeInputLayout, endTimeInputLayout;
     private Button addButton;
     private Database db;
+    private int tutorId;
+    private String email;
 
     private static final Pattern TIME_24H = Pattern.compile("^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$");
 
@@ -27,6 +29,10 @@ public class TimeSlotActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.timeslot);
         db = new Database(this);
+        
+        // Retrieve tutorId and email from intent
+        tutorId = getIntent().getIntExtra("tutorId", -1);
+        email = getIntent().getStringExtra("email");
 
         dateText = findViewById(R.id.dateText);
         startTimeText = findViewById(R.id.startTime);
@@ -117,11 +123,16 @@ public class TimeSlotActivity extends AppCompatActivity{
         }
 
         if (isValid){
-            long result = db.addSlot(date, startTime, endTime);
+            long result = db.addSlot(tutorId, date, startTime, endTime);
             if (result != -1){
                 Intent intent = new Intent(TimeSlotActivity.this, TutorConsoleActivity.class);
+                intent.putExtra("tutorId", tutorId);
+                intent.putExtra("email", email);
                 startActivity(intent);
                 finish();
+            } else {
+                // Duplicate slot or constraint violation
+                dateInputLayout.setError("This time slot already exists or conflicts with another slot.");
             }
 
         }

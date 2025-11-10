@@ -321,19 +321,50 @@ public class Database extends SQLiteOpenHelper {
 
     }
 
-    //Add a tutor timetable slot for the database
-    public long addSlot(String date, String startTime, String endTime){
+    // Retrieve user id by email (returns -1 if not found)
+    public int getUserIdByEmail(String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int result = -1;
+        Cursor c = db.query(TABLE_USERS, new String[]{Id}, Email + " = ?", new String[]{email}, null, null, null);
+        if (c != null) {
+            if (c.moveToFirst()) {
+                int idx = c.getColumnIndex(Id);
+                if (idx >= 0) result = c.getInt(idx);
+            }
+            c.close();
+        }
+        return result;
+    }
+
+    // Add a tutor-specific availability slot (tutorId + date + time unique)
+    public long addSlot(int tutorId, String date, String startTime, String endTime){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-
+        values.put(tutorIdSlot, tutorId);
         values.put(dateSlot, date);
         values.put(startTimeSlot, startTime);
         values.put(endTimeSlot, endTime);
-
-        long result = db.insertWithOnConflict(slotTable,null,values,SQLiteDatabase.CONFLICT_REPLACE);
-        db.close();
-        return result;
+        try {
+            return db.insertOrThrow(slotTable, null, values);
+        } catch (Exception e) {
+            return -1; // duplicate or constraint violation
+        }
     }
+
+    // Get slots for a specific tutor ordered by date/time
+    public Cursor getSlotsForTutor(int tutorId){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                slotTable,
+                new String[]{idSlot, tutorIdSlot, dateSlot, startTimeSlot, endTimeSlot},
+                tutorIdSlot + " = ?",
+                new String[]{String.valueOf(tutorId)},
+                null,null,
+                dateSlot + " ASC, " + startTimeSlot + " ASC"
+        );
+    }
+
+    // (Legacy) Get all slots - retained for backward compatibility, prefer getSlotsForTutor
     public Cursor getAllSlots(){
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + slotTable + " ORDER BY " + dateSlot + " ASC, " + startTimeSlot + " ASC", null);

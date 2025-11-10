@@ -20,6 +20,8 @@ public class TutorConsoleActivity  extends AppCompatActivity {
     private LinearLayout slotList;
     private Button createButton;
     private Button logOffBtn;
+    private int tutorId;
+    private String email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,17 @@ public class TutorConsoleActivity  extends AppCompatActivity {
             setContentView(R.layout.activity_tutor_console);
             db = new Database(this);
             Log.d(tag, "Database starting");
+            
+            // Retrieve tutorId and email from intent
+            tutorId = getIntent().getIntExtra("tutorId", -1);
+            email = getIntent().getStringExtra("email");
+            
+            if (tutorId == -1) {
+                Log.e(tag, "No tutorId provided");
+                finish();
+                return;
+            }
+            
             slotList = findViewById(R.id.slotList);
             createButton = findViewById(R.id.createButton);
 
@@ -48,6 +61,8 @@ public class TutorConsoleActivity  extends AppCompatActivity {
             //onClick for create time slot
             createButton.setOnClickListener(v -> {
                 Intent intent = new Intent(TutorConsoleActivity.this, TimeSlotActivity.class);
+                intent.putExtra("tutorId", tutorId);
+                intent.putExtra("email", email);
                 startActivity(intent);
             });
             // onClick for log off btn
@@ -78,7 +93,7 @@ public class TutorConsoleActivity  extends AppCompatActivity {
 
         try {
             slotList.removeAllViews();
-            Cursor cursor = db.getAllSlots();
+            Cursor cursor = db.getSlotsForTutor(tutorId);
 
             if (cursor == null || cursor.getCount() == 0) {
                 TextView emptyMessage = new TextView(this);

@@ -91,6 +91,8 @@ public class LoginActivity extends AppCompatActivity {
             if ("Tutor".equalsIgnoreCase(userRole)){
                 Intent intent = new Intent(LoginActivity.this, TutorConsoleActivity.class);
                 intent.putExtra("role", userRole);
+                intent.putExtra("tutorId", db.getUserIdByEmail(email));
+                intent.putExtra("email", email);
                 startActivity(intent);
                 finish();
             }
