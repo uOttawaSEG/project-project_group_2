@@ -117,9 +117,12 @@ public class TutorConsoleActivity  extends AppCompatActivity {
 
                 TextView dateText = slotView.findViewById(R.id.dateValue);
                 TextView timeText = slotView.findViewById(R.id.timeValue);
+                Button deleteButton = findViewById(R.id.deleteButton);
+                //TODO: find how to click delete button without preventing display of timeslots
 
                 dateText.setText(date);
                 timeText.setText(startTime + " - " + endTime);
+
 
                 slotList.addView(slotView);
             }

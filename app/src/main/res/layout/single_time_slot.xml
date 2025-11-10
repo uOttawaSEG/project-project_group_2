@@ -80,4 +80,18 @@
         app:layout_constraintHorizontal_bias="0.938"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Delete"
+
+        app:layout_constraintBottom_toBottomOf="@+id/timeValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/dateValue"
+        app:layout_constraintTop_toTopOf="@+id/dateValue"
+        app:layout_constraintVertical_bias="0.833" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

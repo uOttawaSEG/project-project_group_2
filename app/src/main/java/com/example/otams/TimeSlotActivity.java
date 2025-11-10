@@ -1,4 +1,5 @@
 package com.example.otams;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.app.DatePickerDialog;
 import android.widget.Button;
@@ -17,7 +18,7 @@ import java.util.Locale;
 public class TimeSlotActivity extends AppCompatActivity{
     private EditText dateText, startTimeText, endTimeText;
     private TextInputLayout dateInputLayout, startTimeInputLayout, endTimeInputLayout;
-    private Button addButton;
+    private Button addButton, backButton;
     private Database db;
     private int tutorId;
     private String email;
@@ -38,6 +39,7 @@ public class TimeSlotActivity extends AppCompatActivity{
         startTimeText = findViewById(R.id.startTime);
         endTimeText = findViewById(R.id.endTime);
         addButton = findViewById(R.id.addButton);
+        backButton = findViewById(R.id.backButton);
 
         dateInputLayout = findViewById(R.id.dateInputLayout);
         startTimeInputLayout = findViewById(R.id.startTimeInputLayout);
@@ -45,6 +47,7 @@ public class TimeSlotActivity extends AppCompatActivity{
 
         dateText.setOnClickListener(v -> showDatePickerDialog());
         addButton.setOnClickListener(v -> checkAndSaveSlot());
+        backButton.setOnClickListener(v -> finish());
     }
 
     private void showDatePickerDialog(){
@@ -120,6 +123,41 @@ public class TimeSlotActivity extends AppCompatActivity{
         if (startTime.compareTo(endTime) > 0){
             endTimeInputLayout.setError("End time must be after start time");
             isValid = false;
+        }
+
+        //checks if there is overlap in timeslots
+        Cursor cursor = db.getSlotsForTutor(tutorId);
+        while (cursor != null && cursor.getCount() != 0 && cursor.moveToNext()) {
+            String comparedDate = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+            if (date.equals(comparedDate)) {
+                String comparedStart = cursor.getString(cursor.getColumnIndexOrThrow("start_time"));
+                String comparedEnd = cursor.getString(cursor.getColumnIndexOrThrow("end_time"));
+
+                double comparableStart = Integer.parseInt(comparedStart.substring(0, 2)) + (Integer.parseInt(comparedStart.substring(3, 5)))*(0.01666);
+                double comparableEnd = Integer.parseInt(comparedEnd.substring(0, 2)) + (Integer.parseInt(comparedEnd.substring(3, 5)))*(0.01666);
+
+                double newStart = Integer.parseInt(startTime.substring(0, 2)) + (Integer.parseInt(startTime.substring(3, 5)))*(0.01666);
+                double newEnd = Integer.parseInt(endTime.substring(0, 2)) + (Integer.parseInt(endTime.substring(3, 5)))*(0.01666);
+
+                //if new time starts during existing time slot
+                if (newStart >= comparableStart && newStart < comparableEnd) {
+                    isValid = false;
+                    startTimeInputLayout.setError("New session starts during an existing session");
+                }
+                //if new time ends during existing slot
+                else if (newEnd > comparableStart && newEnd <= comparableEnd) {
+                    isValid = false;
+                    endTimeInputLayout.setError("New session ends during an existing session");
+                }
+                //if new time surrounds existing slot
+                else if (newStart <= comparableStart && newEnd >= comparableEnd) {
+                    isValid = false;
+                    startTimeInputLayout.setError("New session surrounds existing session");
+                }
+
+
+            }
+
         }
 
         if (isValid){

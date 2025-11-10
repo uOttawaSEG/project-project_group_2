@@ -351,6 +351,13 @@ public class Database extends SQLiteOpenHelper {
         }
     }
 
+    //Deletes time availability slot passed as parameter
+    public void deleteSlot(Database db, int idSlot) {
+        //TODO: must implement deleting from db(unsure if current implementation works until button is functioning)
+        SQLiteDatabase writeable = db.getWritableDatabase();
+        writeable.delete("slots", "idSlot = " + idSlot, null);
+    }
+
     // Get slots for a specific tutor ordered by date/time
     public Cursor getSlotsForTutor(int tutorId){
         SQLiteDatabase db = this.getReadableDatabase();
