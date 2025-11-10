@@ -15,6 +15,6 @@ and manage incoming student requests through an approval
 
 
 ## Admin Credentials
-Email: admin@otams.ca
-password: admin
+- Email: admin@otams.ca
+- password: admin
 
