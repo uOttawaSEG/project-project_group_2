@@ -175,6 +175,45 @@ public class Database extends SQLiteOpenHelper {
         db.insert(TABLE_USERS, null, value);
 
     }
+    public String getUserEmailById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String email = null;
+
+        Cursor cursor = db.rawQuery(
+                "SELECT " + Email + " FROM " + TABLE_USERS + " WHERE " + Id + " = ?",
+                new String[]{String.valueOf(id)}
+        );
+
+        if (cursor.moveToFirst()) {
+            email = cursor.getString(cursor.getColumnIndexOrThrow(Email));
+        }
+
+        cursor.close();
+        db.close();
+        return email;
+    }
+    public String getStudentNameById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String fullName = null;
+
+        Cursor cursor = db.rawQuery(
+                "SELECT " + FirstName + ", " + LastName + " FROM " + TABLE_USERS + " WHERE " + Id + " = ?",
+                new String[]{String.valueOf(id)}
+        );
+
+        if (cursor.moveToFirst()) {
+            String firstName = cursor.getString(cursor.getColumnIndexOrThrow(FirstName));
+            String lastName = cursor.getString(cursor.getColumnIndexOrThrow(LastName));
+            fullName = firstName + " " + lastName;
+        }
+
+        cursor.close();
+        db.close();
+
+        return fullName;
+    }
+
+
 
 
     public boolean checkUser(String email, String password) {
@@ -547,14 +586,41 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(slotID, slotId);
-        cv.put(studentBooking, studentId);
+        cv.put("id", studentId);
         cv.put("requestDate", requestDate);
         cv.put("status", autoApprove ? "approved" : "pending");
         return db.insert(SessionRequests, null, cv);
     }
     public boolean approveRequest(int requestIdValue) {
-        return updateRequestStatus(requestIdValue, "approved");
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Query the student (Id) and slot for this request
+        Cursor cursor = db.rawQuery(
+                "SELECT Id, slotID FROM sessionRequests WHERE requestId = ?",
+                new String[]{String.valueOf(requestIdValue)}
+        );
+
+        int studentId = -1;
+        int slotId = -1;
+
+        if (cursor.moveToFirst()) {
+            studentId = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+            slotId = cursor.getInt(cursor.getColumnIndexOrThrow("slotID"));
+        }
+        cursor.close();
+
+        Log.d("Database", "approveRequest -> requestId=" + requestIdValue +
+                ", studentId=" + studentId + ", slotId=" + slotId);
+        boolean success = updateRequestStatus(requestIdValue, "approved");
+
+        if (success) {
+
+
+        }
+
+        return success;
     }
+
 
     public boolean rejectRequest(int requestIdValue) {
         return updateRequestStatus(requestIdValue, "rejected");

@@ -1,5 +1,6 @@
 package com.example.otams;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -30,6 +31,8 @@ public class SessionRequestCard extends AppCompatActivity {
         }
         sessionRequestList = findViewById(R.id.sessionRequestList);
         Button backButton = findViewById(R.id.back);
+        Button requestButton = findViewById(R.id.requestbtn);
+
 
         // Initialize database
         db = new Database(this);
@@ -45,6 +48,9 @@ public class SessionRequestCard extends AppCompatActivity {
             Intent intent = new Intent(SessionRequestCard.this, TutorConsoleActivity.class);
             startActivity(intent);
             finish();
+        });
+        requestButton.setOnClickListener(v -> {
+            db.addSessionRequest(2,3,System.currentTimeMillis(),false);
         });
     }
 
@@ -68,17 +74,20 @@ public class SessionRequestCard extends AppCompatActivity {
 
             TextView studentName = card.findViewById(R.id.studentName);
             TextView sessionDateTime = card.findViewById(R.id.sessionDateTime);
+            TextView studentEmail = card.findViewById(R.id.studentEmail);
             Button approve = card.findViewById(R.id.approveButton);
             Button reject = card.findViewById(R.id.rejectButton);
             Button cancel = card.findViewById(R.id.cancelButton);
 
-            int studentId = cursor.getInt(cursor.getColumnIndexOrThrow("Id"));
+            int studentId = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
             String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
             String start = cursor.getString(cursor.getColumnIndexOrThrow("start_time"));
             String end = cursor.getString(cursor.getColumnIndexOrThrow("end_time"));
             int requestId = cursor.getInt(cursor.getColumnIndexOrThrow("requestId"));
 
-            studentName.setText("Student ID: " + studentId);
+            studentName.setText("Student ID: " + db.getStudentNameById(studentId));
+            studentEmail.setText("Email: " + db.getUserEmailById(studentId));
+
             sessionDateTime.setText(date + " " + start + " - " + end);
 
             approve.setOnClickListener(v -> {

@@ -2,6 +2,7 @@ package com.example.otams;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -92,6 +93,8 @@ public class LoginActivity extends AppCompatActivity {
                 Intent intent = new Intent(LoginActivity.this, TutorConsoleActivity.class);
                 intent.putExtra("role", userRole);
                 intent.putExtra("tutorId", db.getUserIdByEmail(email));
+                int tutorId = db.getUserIdByEmail(email);
+                Log.d("LoginActivity", "Tutor ID for " + email + " = " + tutorId);
                 intent.putExtra("email", email);
                 startActivity(intent);
                 finish();
