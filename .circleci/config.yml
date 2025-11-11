@@ -10,6 +10,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Ensure gradlew is executable
+          command: chmod +x ./gradlew
+      - run:
           name: Download Dependencies
           command: ./gradlew dependencies
       - run:
