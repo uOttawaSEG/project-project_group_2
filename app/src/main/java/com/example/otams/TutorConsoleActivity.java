@@ -14,8 +14,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class TutorConsoleActivity  extends AppCompatActivity {
-
-    //Check for error log
     private static final String tag = "TutorConsoleActivity";
 
     private Database db;
@@ -76,6 +74,16 @@ public class TutorConsoleActivity  extends AppCompatActivity {
                 startActivity(intent);
 
             });
+            Button requestsButton = findViewById(R.id.requestsButton);
+            requestsButton.setOnClickListener(v -> {
+                int tutorId = getIntent().getIntExtra("tutorId", -1);
+                Log.d("TutorConsole", "Starting SessionRequestCard with tutorId=" + tutorId);
+                Intent intent = new Intent(TutorConsoleActivity.this, SessionRequestCard.class);
+                intent.putExtra("tutorId", tutorId);
+                startActivity(intent);
+            });
+
+
 
 
 

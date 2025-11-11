@@ -1,5 +1,7 @@
 package com.example.otams;
 
+import static android.provider.Contacts.SettingsColumns.KEY;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -46,6 +48,9 @@ public class Database extends SQLiteOpenHelper {
     private static final String slotID = "slotID";
     private static final String startTime = "startTime";
     private static final String endTime = "endTime";
+    private static final String SessionRequests = "sessionRequests";
+    private static final String requestId = "requestId";
+
 
 
 
@@ -98,6 +103,19 @@ public class Database extends SQLiteOpenHelper {
                 + ");";
 
         db.execSQL(CREATE_TABLE_PERIODS);
+        String CREATE_TABLE_SESSION_REQUESTS = "CREATE TABLE " + SessionRequests + " (" +
+                requestId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                slotID + " INTEGER NOT NULL, " +
+                Id + " INTEGER NOT NULL, " +
+                "requestDate REAL, " +
+                "status TEXT DEFAULT 'pending', " +
+                "FOREIGN KEY(" + slotID + ") REFERENCES " + slotTable + "(" + idSlot + "), " +
+                "FOREIGN KEY(" + Id + ") REFERENCES " + TABLE_USERS + "(" + Id + ")" +
+                ");";
+        db.execSQL(CREATE_TABLE_SESSION_REQUESTS);
+
+
+
 
 
         ContentValues adminValues = getContentValues();
@@ -452,9 +470,6 @@ public class Database extends SQLiteOpenHelper {
                 dateSlot + " ASC, " + startTimeSlot + " ASC"
         );
     }
-
-
-    // (Legacy) Get all slots - retained for backward compatibility, prefer getSlotsForTutor
     public Cursor getAllSlots() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + slotTable + " ORDER BY " + dateSlot + " ASC, " + startTimeSlot + " ASC", null);
@@ -498,18 +513,79 @@ public class Database extends SQLiteOpenHelper {
         values.putNull("studentBooking");
         return db.update("Periods", values, "periodID = ?", new String[]{ String.valueOf(periodId) });
     }
-    public void autoApprove(int periodId) {
+    public void updateAutoApprove(int periodId,int autoApproveValue) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put("autoApprove", 1);
+        values.put("autoApprove", autoApproveValue);
         db.update("Periods", values, "periodID = ?", new String[]{String.valueOf(periodId)});
     }
-    public void NoautoApprove(int periodId) {
+    public Cursor getPeriodsBySlot(int slotId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                periodTable,
+                new String[]{periodID, slotID, startTime, endTime, studentBooking},
+                slotID + " = ?",
+                new String[]{String.valueOf(slotId)},
+                null,
+                null,
+                startTime + " ASC"
+        );
+    }
+    public Cursor getPeriodById(int periodId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(
+                periodTable,
+                new String[]{periodID, slotID, startTime, endTime, studentBooking},
+                periodID + " = ?",
+                new String[]{String.valueOf(periodId)},
+                null,
+                null,
+                null
+        );
+    }
+    public long addSessionRequest(int slotId, int studentId, long requestDate, boolean autoApprove) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("autoApprove", 0);
-        db.update("Periods", values, "periodID = ?", new String[]{String.valueOf(periodId)});
+        ContentValues cv = new ContentValues();
+        cv.put(slotID, slotId);
+        cv.put(studentBooking, studentId);
+        cv.put("requestDate", requestDate);
+        cv.put("status", autoApprove ? "approved" : "pending");
+        return db.insert(SessionRequests, null, cv);
     }
+    public boolean approveRequest(int requestIdValue) {
+        return updateRequestStatus(requestIdValue, "approved");
+    }
+
+    public boolean rejectRequest(int requestIdValue) {
+        return updateRequestStatus(requestIdValue, "rejected");
+    }
+
+    public boolean cancelRequest(int requestIdValue) {
+        return updateRequestStatus(requestIdValue, "cancelled");
+    }
+
+    private boolean updateRequestStatus(int requestIdValue, String status) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("status", status);
+        int updated = db.update(SessionRequests, cv, requestId + " = ?", new String[]{String.valueOf(requestIdValue)});
+        return updated > 0;
+    }
+    public Cursor getPendingRequestsForTutor(int tutorId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT sr.requestId, sr.slotID, sr.id, sr.status, sr.requestDate, s.date, s.start_time, s.end_time " +
+                        "FROM sessionRequests sr " +
+                        "JOIN slots s ON sr.slotID = s.id " +
+                        "WHERE s.tutorId = ? AND sr.status = 'pending'",
+                new String[]{String.valueOf(tutorId)});
+        return cursor;
+    }
+
+
+
+
+
 
 }
 

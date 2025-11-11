@@ -26,6 +26,9 @@
         <activity android:name=".AdminActivity" android:exported="false"/>
         <activity android:name=".TutorConsoleActivity" android:exported="false"/>
         <activity android:name=".TimeSlotActivity" android:exported="false"/>
+        <activity android:name=".SessionRequestsActivity" android:exported="false"/>
+        <activity android:name=".SessionRequestCard" android:exported="false"/>
+
 
 
     </application>

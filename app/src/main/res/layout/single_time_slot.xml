@@ -32,7 +32,7 @@
         android:id="@+id/dateValue"
         android:layout_width="213dp"
         android:layout_height="29dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="104dp"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="@+id/textView8"
@@ -52,24 +52,24 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/textView8"
         app:layout_constraintTop_toBottomOf="@+id/textView10"
-        app:layout_constraintVertical_bias="0.65" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/timeValue"
         android:layout_width="208dp"
         android:layout_height="29dp"
-        android:layout_marginEnd="104dp"
+        android:layout_marginEnd="100dp"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dateValue"
-        app:layout_constraintVertical_bias="0.06" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/textView7"
         android:layout_width="50dp"
         android:layout_height="25dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="36dp"
         android:background="@color/material_dynamic_neutral80"
         android:text="Time"
         android:textColor="@color/black"
@@ -77,7 +77,7 @@
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="@+id/textView8"
         app:layout_constraintEnd_toStartOf="@+id/timeValue"
-        app:layout_constraintHorizontal_bias="0.938"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
