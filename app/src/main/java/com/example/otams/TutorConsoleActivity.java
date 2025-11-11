@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class TutorConsoleActivity  extends AppCompatActivity {
@@ -58,6 +60,8 @@ public class TutorConsoleActivity  extends AppCompatActivity {
             }
             logOffBtn = findViewById(R.id.logOffBtn);
 
+
+
             //onClick for create time slot
             createButton.setOnClickListener(v -> {
                 Intent intent = new Intent(TutorConsoleActivity.this, TimeSlotActivity.class);
@@ -100,36 +104,45 @@ public class TutorConsoleActivity  extends AppCompatActivity {
                 emptyMessage.setText("No slots available.");
                 emptyMessage.setPadding(0, 48, 0, 0);
                 slotList.addView(emptyMessage);
-                if (cursor != null) {
-                    cursor.close();
-                }
+                if (cursor != null) cursor.close();
                 return;
             }
 
             while (cursor.moveToNext()) {
+                int slotId = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
                 String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
                 String startTime = cursor.getString(cursor.getColumnIndexOrThrow("start_time"));
                 String endTime = cursor.getString(cursor.getColumnIndexOrThrow("end_time"));
 
-
+                // Inflate the slot view
                 LayoutInflater inflater = LayoutInflater.from(this);
                 View slotView = inflater.inflate(R.layout.single_time_slot, slotList, false);
 
+                // Set the text fields
                 TextView dateText = slotView.findViewById(R.id.dateValue);
                 TextView timeText = slotView.findViewById(R.id.timeValue);
-                Button deleteButton = findViewById(R.id.deleteButton);
-                //TODO: find how to click delete button without preventing display of timeslots
+                Button deleteButton = slotView.findViewById(R.id.deleteButton);
 
                 dateText.setText(date);
                 timeText.setText(startTime + " - " + endTime);
 
+                deleteButton.setOnClickListener(v -> {
+                    boolean deleted = db.removeSlot(slotId);
+                    if (deleted) {
+                        Toast.makeText(this, "Slot deleted", Toast.LENGTH_SHORT).show();
+                        loadAndDisplaySlots(); // refresh the list after deleting
+                    } else {
+                        Toast.makeText(this, "Failed to delete slot", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
                 slotList.addView(slotView);
             }
 
             cursor.close();
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.e(tag, "Crash in loadAndDisplaySlots", e);
         }
     }
+
 }

@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import java.util.regex.Pattern;
 import android.content.Intent;
+import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.textfield.TextInputLayout;
@@ -41,6 +42,7 @@ public class TimeSlotActivity extends AppCompatActivity{
         addButton = findViewById(R.id.addButton);
         backButton = findViewById(R.id.backButton);
 
+
         dateInputLayout = findViewById(R.id.dateInputLayout);
         startTimeInputLayout = findViewById(R.id.startTimeInputLayout);
         endTimeInputLayout = findViewById(R.id.endTimeInputLayout);
@@ -68,6 +70,7 @@ public class TimeSlotActivity extends AppCompatActivity{
     }
 
     private void checkAndSaveSlot(){
+        Switch autoAcceptSwitch = findViewById(R.id.autoAcceptSwitch);
         dateInputLayout.setError(null);
         startTimeInputLayout.setError(null);
         endTimeInputLayout.setError(null);
@@ -77,6 +80,7 @@ public class TimeSlotActivity extends AppCompatActivity{
         String date = dateText.getText().toString();
         String startTime = startTimeText.getText().toString();
         String endTime = endTimeText.getText().toString();
+        int autoApproveValue = autoAcceptSwitch.isChecked() ? 1 : 0;
 
         //Empty check
         if (date.isEmpty()){
@@ -161,7 +165,7 @@ public class TimeSlotActivity extends AppCompatActivity{
         }
 
         if (isValid){
-            long result = db.addSlot(tutorId, date, startTime, endTime);
+            long result = db.addSlot(tutorId, date, startTime, endTime,autoApproveValue);
             if (result != -1){
                 Intent intent = new Intent(TimeSlotActivity.this, TutorConsoleActivity.class);
                 intent.putExtra("tutorId", tutorId);

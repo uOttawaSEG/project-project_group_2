@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -37,7 +39,13 @@ public class Database extends SQLiteOpenHelper {
     private static final String dateSlot = "date";
     private static final String startTimeSlot = "start_time";
     private static final String endTimeSlot = "end_time";
-
+    private static final String studentBooking = "studentBooking";
+    private static final String periodTable = "periods";
+    private static final String autoApprove="autoApprove";
+    private static final String periodID = "periodID";
+    private static final String slotID = "slotID";
+    private static final String startTime = "startTime";
+    private static final String endTime = "endTime";
 
 
 
@@ -68,21 +76,33 @@ public class Database extends SQLiteOpenHelper {
                 RegistrationDate + " REAL" + ")";
         db.execSQL(createTable);
 
-        String CREATE_SLOTS_TABLE = "CREATE TABLE " + slotTable + "("
+        String CREATE_SLOTS_TABLE = "CREATE TABLE " + slotTable + " ("
                 + idSlot + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + tutorIdSlot + " INTEGER NOT NULL, "
                 + dateSlot + " TEXT, "
                 + startTimeSlot + " TEXT, "
                 + endTimeSlot + " TEXT, "
-                +  "FOREIGN KEY(" + tutorIdSlot + ") REFERENCES " + TABLE_USERS + "(" + Id  +  "), "
-                + " UNIQUE (" + tutorIdSlot + ", " + dateSlot + ", " + startTimeSlot + ", " + endTimeSlot + ")"
-                + ")";
+                + autoApprove + " INTEGER DEFAULT 0, "
+                + "FOREIGN KEY(" + tutorIdSlot + ") REFERENCES " + TABLE_USERS + "(" + Id + "), "
+                + "UNIQUE (" + tutorIdSlot + ", " + dateSlot + ", " + startTimeSlot + ", " + endTimeSlot + ")"
+                + ");";
         db.execSQL(CREATE_SLOTS_TABLE);
+        String CREATE_TABLE_PERIODS = "CREATE TABLE " + periodTable + " ("
+                + periodID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + slotID + " INTEGER, "
+                + startTime + " TEXT, "
+                + endTime + " TEXT, "
+                + studentBooking + " TEXT, "
+                + "FOREIGN KEY(" + slotID + ") REFERENCES " + slotTable + "(" + idSlot + "), "
+                + "UNIQUE (" + slotID + ", " + startTime + ", " + endTime + ")"
+                + ");";
+
+        db.execSQL(CREATE_TABLE_PERIODS);
+
 
         ContentValues adminValues = getContentValues();
         db.insert(TABLE_USERS, null, adminValues);
     }
-
 
 
     @NonNull
@@ -107,6 +127,7 @@ public class Database extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int Previous, int New) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + slotTable);
+        db.execSQL("DROP TABLE IF EXISTS " + periodTable);
         onCreate(db);
     }
 
@@ -164,7 +185,6 @@ public class Database extends SQLiteOpenHelper {
     }
 
 
-
     public String getUserRole(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -190,12 +210,13 @@ public class Database extends SQLiteOpenHelper {
         cursor.close();
         return userRole;
     }
+
     public String getUserRegistrationStatus(String email, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String[] columns = {Status};
 
-        String selection = Email +" = ? AND " + Password + " = ?";
+        String selection = Email + " = ? AND " + Password + " = ?";
 
         String[] selectionArgs = {email, password};
         Cursor cursor = db.query(TABLE_USERS,
@@ -216,6 +237,7 @@ public class Database extends SQLiteOpenHelper {
     public List<RegistrationRequest> getPendingRegistrationRequests() {
         return getRegistrationRequestsByStatus("pending approval");
     }
+
     public List<RegistrationRequest> getApprovedRegistrationRequests() {
         return getRegistrationRequestsByStatus("Approved");
 
@@ -232,11 +254,11 @@ public class Database extends SQLiteOpenHelper {
 
         String query = "SELECT * FROM " + TABLE_USERS
                 + " WHERE " + Status + " = ?"
-                + " ORDER BY "+ RegistrationDate + " DESC";
+                + " ORDER BY " + RegistrationDate + " DESC";
 
         Cursor cursor = db.rawQuery(query, new String[]{status});
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 RegistrationRequest request = new RegistrationRequest();
                 request.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(Id)));
@@ -251,7 +273,7 @@ public class Database extends SQLiteOpenHelper {
                 request.setStatus(cursor.getString(cursor.getColumnIndexOrThrow(Status)));
 
                 //date
-                request.setRegistrationDate(cursor.getLong(cursor.getColumnIndexOrThrow(RegistrationDate))) ;
+                request.setRegistrationDate(cursor.getLong(cursor.getColumnIndexOrThrow(RegistrationDate)));
 
                 requests.add(request);
             } while (cursor.moveToNext());
@@ -277,7 +299,7 @@ public class Database extends SQLiteOpenHelper {
     }
 
 
-    private boolean updateRegistrationStatus(int userId, String newStatus){
+    private boolean updateRegistrationStatus(int userId, String newStatus) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(Status, newStatus);
@@ -316,6 +338,8 @@ public class Database extends SQLiteOpenHelper {
 
     public void resetDatabase() {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + slotTable);
+        db.execSQL("DROP TABLE IF EXISTS " + periodTable);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
 
@@ -337,44 +361,154 @@ public class Database extends SQLiteOpenHelper {
     }
 
     // Add a tutor-specific availability slot (tutorId + date + time unique)
-    public long addSlot(int tutorId, String date, String startTime, String endTime){
+    public long addSlot(int tutorId, String date, String startTime, String endTime,int autoApproveValue) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // 1. Create the slot entry
         ContentValues values = new ContentValues();
-        values.put(tutorIdSlot, tutorId);
-        values.put(dateSlot, date);
-        values.put(startTimeSlot, startTime);
-        values.put(endTimeSlot, endTime);
+        values.put("tutorID", tutorId);
+        values.put("date", date);
+        values.put("start_time", startTime);
+        values.put("end_time", endTime);
+        values.put("autoApprove",autoApproveValue );
+
+        long slotId;
         try {
-            return db.insertOrThrow(slotTable, null, values);
+            slotId = db.insertOrThrow("slots", null, values);
         } catch (Exception e) {
-            return -1; // duplicate or constraint violation
+            Log.e("DB_ERROR", "Insert failed: " + e.getMessage());
+            return -1;
+        }
+        int numPeriods = getPeriods(startTime, endTime);
+        Log.d("DEBUG", "Number of periods: " + numPeriods);
+
+
+
+        // 2. If slot was inserted successfully, create its periods
+        if (slotId != -1) {
+            String currentStart = startTime;
+            String currentEnd;
+
+            for (int i = 0; i < getPeriods(startTime, endTime); i++) {
+                currentEnd = nextPeriod(currentStart);
+                addPeriod((int) slotId, currentStart, currentEnd);
+                currentStart = currentEnd;
+            }
+        }
+
+        return slotId;
+    }
+    public boolean removeSlot(int slotID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+
+        try {
+
+            db.delete("Periods", "slotID = ?", new String[]{String.valueOf(slotID)});
+
+
+            int deletedRows = db.delete("Slots", "id = ?", new String[]{String.valueOf(slotID)});
+
+
+            db.setTransactionSuccessful();
+            return deletedRows > 0;
+
+        } catch (Exception e) {
+            return false;
+
+        } finally {
+            db.endTransaction();
         }
     }
 
-    //Deletes time availability slot passed as parameter
-    public void deleteSlot(Database db, int idSlot) {
-        //TODO: must implement deleting from db(unsure if current implementation works until button is functioning)
-        SQLiteDatabase writeable = db.getWritableDatabase();
-        writeable.delete("slots", "idSlot = " + idSlot, null);
+
+    public long addPeriod(int slotId, String startTime, String endTime) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put("slotID", slotId);
+        values.put("startTime", startTime);
+        values.put("endTime", endTime);
+        values.putNull("studentBooking");
+
+        try {
+            return db.insertOrThrow("Periods", null, values);
+        } catch (Exception e) {
+            Log.e("DB_ERROR", "Insert failed: " + e.getMessage());
+            return -1;
+        }
     }
 
+
     // Get slots for a specific tutor ordered by date/time
-    public Cursor getSlotsForTutor(int tutorId){
+    public Cursor getSlotsForTutor(int tutorId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(
                 slotTable,
-                new String[]{idSlot, tutorIdSlot, dateSlot, startTimeSlot, endTimeSlot},
+                new String[]{idSlot, tutorIdSlot, dateSlot, startTimeSlot, endTimeSlot, autoApprove},
                 tutorIdSlot + " = ?",
                 new String[]{String.valueOf(tutorId)},
-                null,null,
+                null, null,
                 dateSlot + " ASC, " + startTimeSlot + " ASC"
         );
     }
 
+
     // (Legacy) Get all slots - retained for backward compatibility, prefer getSlotsForTutor
-    public Cursor getAllSlots(){
+    public Cursor getAllSlots() {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + slotTable + " ORDER BY " + dateSlot + " ASC, " + startTimeSlot + " ASC", null);
+    }
+
+    public int ConvertToInt(String time) {
+        String[] splitTime = time.split(":");
+        int hour = Integer.parseInt(splitTime[0]);
+        int minute = Integer.parseInt(splitTime[1]);
+        return hour * 60 + minute;
+    }
+
+    public String ConvertToString(int time) {
+        int hour = time / 60;
+        int minute = time % 60;
+        return hour + ":" + minute;
+
+    }
+
+    public String nextPeriod(String time) {
+        int timeInt = ConvertToInt(time);
+        timeInt += 30;
+        return ConvertToString(timeInt);
+
+
+    }
+
+    public int getPeriods(String startTime, String endTime) {
+        int timeInt = ConvertToInt(endTime) - ConvertToInt(startTime);
+        return timeInt / 30;
+    }
+    public void bookPeriod(int periodId, String studentID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("studentBooking", studentID);
+        db.update("Periods", values, "periodID = ?", new String[]{String.valueOf(periodId)});
+    }
+    public int cancelBooking(int periodId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.putNull("studentBooking");
+        return db.update("Periods", values, "periodID = ?", new String[]{ String.valueOf(periodId) });
+    }
+    public void autoApprove(int periodId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("autoApprove", 1);
+        db.update("Periods", values, "periodID = ?", new String[]{String.valueOf(periodId)});
+    }
+    public void NoautoApprove(int periodId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("autoApprove", 0);
+        db.update("Periods", values, "periodID = ?", new String[]{String.valueOf(periodId)});
     }
 
 }
