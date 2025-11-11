@@ -131,7 +131,7 @@ public class TimeSlotActivity extends AppCompatActivity{
 
         //checks if there is overlap in timeslots
         Cursor cursor = db.getSlotsForTutor(tutorId);
-        while (cursor != null && cursor.getCount() != 0 && cursor.moveToNext()) {
+        while (cursor != null && cursor.getCount() != 0 && cursor.moveToNext() && isValid != false) {
             String comparedDate = cursor.getString(cursor.getColumnIndexOrThrow("date"));
             if (date.equals(comparedDate)) {
                 String comparedStart = cursor.getString(cursor.getColumnIndexOrThrow("start_time"));
