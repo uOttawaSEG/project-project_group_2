@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="visible"
+
     tools:visibility="visible">
 
     <TextView
@@ -41,10 +42,11 @@
         android:id="@+id/createButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="#6E0B14"
         android:text="Create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.196"
+        app:layout_constraintHorizontal_bias="0.105"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.912" />
@@ -53,10 +55,11 @@
         android:id="@+id/logOffBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="#6E0B14"
         android:text="Log Off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.815"
+        app:layout_constraintHorizontal_bias="0.866"
         app:layout_constraintStart_toStartOf="@+id/scrollView"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.912" />
@@ -83,6 +86,7 @@
         android:id="@+id/requestsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="#6E0B14"
         android:text="requests"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -82,7 +82,8 @@
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword"
-            app:layout_constraintVertical_bias="0.184" />
+            app:layout_constraintVertical_bias="0.184"
+            android:backgroundTint= "#6E0B14"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -94,8 +95,7 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:alpha="200"
-        android:background="#0C6CBC"
-        android:backgroundTint="#03A9F4"
+        android:background="#6E0B14"
         android:drawableTint="#E91E63"
         android:fadingEdge="horizontal|vertical"
         android:fadingEdgeLength="2dp"

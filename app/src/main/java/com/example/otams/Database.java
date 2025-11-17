@@ -19,7 +19,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String TABLE_USERS = "users";
     private static final String DATABASE_NAME = "userInfo.db";
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 7;
 
     private static final String Id = "id";
     private static final String Role = "role";
@@ -646,6 +646,26 @@ public class Database extends SQLiteOpenHelper {
                         "WHERE s.tutorId = ? AND sr.status = 'pending'",
                 new String[]{String.valueOf(tutorId)});
         return cursor;
+    }
+
+    public Cursor getBookedTutoringSessionsStudent(int studentId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT p.periodID, " + "s.date, p.startTime, p.endTime, " +
+                "u.firstName || ' ' || u.lastName AS  tutorName " +
+                "FROM  periods p " + "JOIN slots s ON p.slotID = s.id " +
+                "JOIN users u ON s.tutorId = u.id " + "WHERE p.studentBooking = ? " +
+                "ORDER BY  s.date ASC, p.startTime ASC";
+
+        return db.rawQuery(query, new String[]{String.valueOf(studentId)});
+    }
+
+    public boolean cancelTutoringSessionStudent(int periodId){
+        SQLiteDatabase db= this.getWritableDatabase();
+        ContentValues values=  new ContentValues();
+        values.putNull("studentBooking");
+        int updatedRows = db.update("Periods", values, "periodID = ?", new String[]{String.valueOf(periodId)});
+        return updatedRows > 0;
+
     }
 
 

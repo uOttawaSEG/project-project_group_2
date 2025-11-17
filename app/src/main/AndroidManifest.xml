@@ -28,6 +28,8 @@
         <activity android:name=".TimeSlotActivity" android:exported="false"/>
         <activity android:name=".SessionRequestsActivity" android:exported="false"/>
         <activity android:name=".SessionRequestCard" android:exported="false"/>
+        <activity android:name=".StudentActivity" android:exported="false"/>
+
 
 
 

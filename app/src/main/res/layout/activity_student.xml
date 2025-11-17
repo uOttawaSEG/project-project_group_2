@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainStudentLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StudentActivity">
+
+    <TextView
+        android:id="@+id/textView11"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:text=" Student console"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/sectionTitle"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/sectionTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="Upcoming Sessions"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.078" />
+
+    <TextView
+        android:id="@+id/futureSessionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Upcoming Sessions"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/pastSessionText"
+        app:layout_constraintEnd_toStartOf="@+id/pastSessionText"
+        app:layout_constraintStart_toStartOf="@+id/pastSessionText"
+        app:layout_constraintTop_toTopOf="@+id/pastSessionText" />
+
+    <LinearLayout
+        android:id="@+id/futureSessions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/futureBtn"
+        app:layout_constraintTop_toBottomOf="@+id/sectionTitle" />
+
+
+    <TextView
+        android:id="@+id/pastSessionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Past Sessions"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/pastSessions"
+        app:layout_constraintEnd_toStartOf="@+id/pastSessions"
+        app:layout_constraintStart_toStartOf="@+id/pastSessions"
+        app:layout_constraintTop_toTopOf="@+id/pastSessions" />
+
+    <LinearLayout
+        android:id="@+id/pastSessions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/futureBtn"
+        android:layout_width="117dp"
+        android:layout_height="51dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#6E0B14"
+        android:text="Future"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="16dp" />
+
+    <Button
+        android:id="@+id/pastBtn"
+        android:layout_width="110dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#6E0B14"
+        android:text="Past"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/futureBtn" />
+
+    <Button
+        android:id="@+id/logOffBtn"
+        android:layout_width="113dp"
+        android:layout_height="50dp"
+        android:backgroundTint="#6E0B14"
+        android:text="Log Off"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.636"
+        app:layout_constraintStart_toEndOf="@+id/pastBtn"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.977" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

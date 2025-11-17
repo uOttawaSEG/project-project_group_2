@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
             else {
-                Intent intent = new Intent(LoginActivity.this, WelcomeActivity.class);
+                Intent intent = new Intent(LoginActivity.this, StudentActivity.class);
                 intent.putExtra("role", userRole);
                 startActivity(intent);
                 finish();
