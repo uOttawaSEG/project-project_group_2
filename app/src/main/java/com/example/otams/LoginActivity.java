@@ -102,6 +102,7 @@ public class LoginActivity extends AppCompatActivity {
             else {
                 Intent intent = new Intent(LoginActivity.this, StudentActivity.class);
                 intent.putExtra("role", userRole);
+                intent.putExtra("studentId", db.getUserIdByEmail(email));
                 startActivity(intent);
                 finish();
             }

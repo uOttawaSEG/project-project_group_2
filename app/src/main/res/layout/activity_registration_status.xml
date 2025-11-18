@@ -161,6 +161,8 @@
             android:layout_height="wrap_content"
             android:text="Back"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp" />
+            android:layout_marginTop="20dp"
+            android:backgroundTint= "#6E0B14"/>
+
     </LinearLayout>
 </ScrollView>

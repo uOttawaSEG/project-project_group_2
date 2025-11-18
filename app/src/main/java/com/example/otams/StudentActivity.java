@@ -3,6 +3,7 @@ package com.example.otams;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -24,21 +25,38 @@ public class StudentActivity extends AppCompatActivity {
     private LinearLayout futureSessions;
     private LinearLayout pastSessions;
     private TextView sectionTitle;
+    Log log;
+
+
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        studentId = getIntent().getIntExtra("studentId", -1);
+
+        log.d("StudentActivity", "onCreate: studentId=" + studentId);
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student);
         db = new Database(this);
         studentId = getIntent().getIntExtra("studentId", -1);
-
         futureSessions = findViewById(R.id.futureSessions);
         pastSessions = findViewById(R.id.pastSessions);
         sectionTitle = findViewById(R.id.sectionTitle);
 
-        Button futureBtn = findViewById(R.id.futureBtn);
+        Button search = findViewById(R.id.searchbtn);
+        search.setOnClickListener(v -> {
+            Intent intent =new Intent(StudentActivity.this, StudentSearchActivity.class);
+            intent.putExtra("studentId", studentId);
+            startActivity(intent);
+            finish();
+        });
+
+
+
+        Button futureBtn = findViewById(R.id.backbtns);
         Button pastBtn = findViewById(R.id.pastBtn);
 
 
@@ -83,7 +101,7 @@ public class StudentActivity extends AppCompatActivity {
         chargeSession();
     }
 
-    public  LinearLayout sessionLayout(String date, String startTime, String endTime, String tutorName, String classId, int periodId, boolean isPastSession) throws ParseException {
+    public  LinearLayout sessionLayout(String date, String startTime, String endTime, String tutorName, int periodId, boolean isPastSession) throws ParseException {
 
         LinearLayout sessionInfo =  new LinearLayout(this);
         sessionInfo.setPadding(8, 8, 8, 8);
@@ -104,10 +122,7 @@ public class StudentActivity extends AppCompatActivity {
         tutorText.setText(tutorName);
         sessionInfo.addView(tutorText);
 
-        //class code
-        TextView classCode = new TextView(this);
-        classCode.setText("Class code: " + classId);
-        sessionInfo.addView(classCode);
+
 
 
             if( !isPastSession){
@@ -158,7 +173,6 @@ public class StudentActivity extends AppCompatActivity {
         View separator = new View(this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1);
         separator.setLayoutParams(params);
-
         return separator;
 
 
@@ -180,6 +194,7 @@ public class StudentActivity extends AppCompatActivity {
         if (cursor == null) {
             return;
         }
+        log.d("StudentActivity","we got to the db.getBookedTutoringSessionsStudent ");
 
         boolean hasFutureSessions = false;
         boolean hasPastSessions = false;
@@ -192,7 +207,7 @@ public class StudentActivity extends AppCompatActivity {
                 String endTime = cursor.getString(cursor.getColumnIndexOrThrow("endTime"));
                 int periodId = cursor.getInt(cursor.getColumnIndexOrThrow("periodID"));
                 String tutorName = cursor.getString(cursor.getColumnIndexOrThrow("tutorName"));
-                String classId = cursor.getString(cursor.getColumnIndexOrThrow("classId"));
+                log.d("StudentActivity", "PeriodId: "+periodId);
 
 
                 //date of session/now
@@ -211,7 +226,7 @@ public class StudentActivity extends AppCompatActivity {
                 }
 
                 try {
-                    LinearLayout itemSession = sessionLayout(date, startTime, endTime, tutorName, classId, periodId, isPastSession);
+                    LinearLayout itemSession = sessionLayout(date, startTime, endTime, tutorName, periodId, isPastSession);
                     if (isPastSession) {
                         pastSessions.addView(itemSession);
                         hasPastSessions = true;

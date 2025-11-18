@@ -40,7 +40,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="95dp"
-        android:text="Log Off" />
+        android:text="Log Off"
+        android:backgroundTint= "#6E0B14"/>
 
 </RelativeLayout>
 

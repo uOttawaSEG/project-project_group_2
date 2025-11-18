@@ -1,5 +1,6 @@
 package com.example.otams;
 
+import static android.icu.text.MessagePattern.ArgType.SELECT;
 import static android.provider.Contacts.SettingsColumns.KEY;
 
 import android.content.ContentValues;
@@ -19,7 +20,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String TABLE_USERS = "users";
     private static final String DATABASE_NAME = "userInfo.db";
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 9;
 
     private static final String Id = "id";
     private static final String Role = "role";
@@ -50,6 +51,13 @@ public class Database extends SQLiteOpenHelper {
     private static final String endTime = "endTime";
     private static final String SessionRequests = "sessionRequests";
     private static final String requestId = "requestId";
+    private static final String tutorRating = "tutorRating";
+    private static final String numberOfRatings = "numberofRatings";
+    private static final String tutorId = "tutorId";
+
+
+
+
 
 
 
@@ -73,6 +81,8 @@ public class Database extends SQLiteOpenHelper {
                 PhoneNum + " TEXT, " +
                 Program + " TEXT, " +
                 Degree + " TEXT, " +
+                tutorRating + " REAL DEFAULT 0, " +
+                numberOfRatings + " INTEGER DEFAULT 0, " +
 
                 Course + " TEXT, " +
 
@@ -95,6 +105,7 @@ public class Database extends SQLiteOpenHelper {
         String CREATE_TABLE_PERIODS = "CREATE TABLE " + periodTable + " ("
                 + periodID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + slotID + " INTEGER, "
+                + tutorId + " INTEGER, "
                 + startTime + " TEXT, "
                 + endTime + " TEXT, "
                 + studentBooking + " TEXT, "
@@ -107,7 +118,8 @@ public class Database extends SQLiteOpenHelper {
                 requestId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 slotID + " INTEGER NOT NULL, " +
                 Id + " INTEGER NOT NULL, " +
-                "requestDate REAL, " +
+                periodID + " INTEGER, " +
+                "requestDate TEXT, " +
                 "status TEXT DEFAULT 'pending', " +
                 "FOREIGN KEY(" + slotID + ") REFERENCES " + slotTable + "(" + idSlot + "), " +
                 "FOREIGN KEY(" + Id + ") REFERENCES " + TABLE_USERS + "(" + Id + ")" +
@@ -146,6 +158,7 @@ public class Database extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS " + slotTable);
         db.execSQL("DROP TABLE IF EXISTS " + periodTable);
+        db.execSQL("DROP TABLE IF EXISTS " + SessionRequests);
         onCreate(db);
     }
 
@@ -448,7 +461,7 @@ public class Database extends SQLiteOpenHelper {
 
             for (int i = 0; i < getPeriods(startTime, endTime); i++) {
                 currentEnd = nextPeriod(currentStart);
-                addPeriod((int) slotId, currentStart, currentEnd);
+                addPeriod((int) slotId,tutorId, currentStart, currentEnd);
                 currentStart = currentEnd;
             }
         }
@@ -479,11 +492,12 @@ public class Database extends SQLiteOpenHelper {
     }
 
 
-    public long addPeriod(int slotId, String startTime, String endTime) {
+    public long addPeriod(int slotId,int tutorId, String startTime, String endTime) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
         values.put("slotID", slotId);
+        values.put("tutorId", tutorId);
         values.put("startTime", startTime);
         values.put("endTime", endTime);
         values.putNull("studentBooking");
@@ -582,10 +596,11 @@ public class Database extends SQLiteOpenHelper {
                 null
         );
     }
-    public long addSessionRequest(int slotId, int studentId, long requestDate, boolean autoApprove) {
+    public long addSessionRequest(int periodId, int slotId, int studentId, String requestDate, boolean autoApprove) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(slotID, slotId);
+        cv.put(periodID, periodId);
         cv.put("id", studentId);
         cv.put("requestDate", requestDate);
         cv.put("status", autoApprove ? "approved" : "pending");
@@ -596,25 +611,27 @@ public class Database extends SQLiteOpenHelper {
 
         // Query the student (Id) and slot for this request
         Cursor cursor = db.rawQuery(
-                "SELECT Id, slotID FROM sessionRequests WHERE requestId = ?",
+                "SELECT Id, slotID,periodID FROM sessionRequests WHERE requestId = ?",
                 new String[]{String.valueOf(requestIdValue)}
         );
 
         int studentId = -1;
         int slotId = -1;
+        int periodId= -1;
 
         if (cursor.moveToFirst()) {
             studentId = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
             slotId = cursor.getInt(cursor.getColumnIndexOrThrow("slotID"));
+            periodId= cursor.getInt(cursor.getColumnIndexOrThrow("periodID"));
         }
         cursor.close();
 
         Log.d("Database", "approveRequest -> requestId=" + requestIdValue +
-                ", studentId=" + studentId + ", slotId=" + slotId);
+                ", studentId=" + studentId + ", slotId=" + slotId+",periodId="+periodId);
         boolean success = updateRequestStatus(requestIdValue, "approved");
 
         if (success) {
-
+            bookPeriod(periodId, String.valueOf(studentId));
 
         }
 
@@ -648,6 +665,7 @@ public class Database extends SQLiteOpenHelper {
         return cursor;
     }
 
+
     public Cursor getBookedTutoringSessionsStudent(int studentId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT p.periodID, " + "s.date, p.startTime, p.endTime, " +
@@ -665,6 +683,53 @@ public class Database extends SQLiteOpenHelper {
         values.putNull("studentBooking");
         int updatedRows = db.update("Periods", values, "periodID = ?", new String[]{String.valueOf(periodId)});
         return updatedRows > 0;
+
+    }
+    public Cursor SearchperiodBycoursename(String courseName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query =
+                "SELECT p.periodID, " +
+                        "       p.startTime, " +
+                        "       p.endTime, " +
+                        "       u.firstName || ' ' || u.lastName AS tutorName, " +
+                        "       u.tutorRating, " +
+                        "       s.date, " +
+                        "       s.autoApprove, " +
+                        "       p.slotID     "+
+                        "FROM periods p " +
+                        "JOIN users u ON p.tutorId = u.ID " +
+                        "JOIN slots s ON p.slotID = s.id " +
+                        "WHERE u.course = ? AND p.studentBooking IS NULL " +
+                        "ORDER BY p.startTime ASC";
+
+        return db.rawQuery(query, new String[]{courseName});
+    }
+
+
+    public void calculateTutorNewRating(int tutorID,int newRating) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT tutorRating FROM users WHERE id = ?", new String[]{String.valueOf(tutorID)});
+        float currentRating=-1;
+        int numberofRatings=-1;
+        if (cursor.moveToFirst()) {
+            currentRating = cursor.getInt(cursor.getColumnIndexOrThrow("tutorRating"));
+            numberofRatings = cursor.getInt(cursor.getColumnIndexOrThrow("numberOfRatings"));
+
+        }
+        float newAverage = (currentRating * numberofRatings + newRating) / (numberofRatings + 1);
+        numberofRatings++;
+
+        updateTutorRating(tutorID, numberofRatings, newAverage);
+
+        return ;
+    }
+    public void updateTutorRating(int tutorID,int numberOfRatings,float newAverage ) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("tutorRating", newAverage);
+        values.put("numberOfRatings", numberOfRatings);
+        db.update("users", values, "id = ?", new String[]{String.valueOf(tutorID)});
 
     }
 

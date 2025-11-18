@@ -20,7 +20,7 @@
         android:layout_marginTop="24dp"
         android:background="@color/white"
         android:text="Time Session"
-        android:textColor="@android:color/holo_blue_bright"
+        android:textColor="#680A28"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,7 +42,7 @@
         android:id="@+id/textView6"
         android:layout_width="53dp"
         android:layout_height="26dp"
-        android:background="@color/material_dynamic_neutral80"
+        android:background="#BA9898"
         android:text="Date"
         android:textColor="@color/black"
         android:textSize="18sp"
@@ -52,7 +52,7 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/textView8"
         app:layout_constraintTop_toBottomOf="@+id/textView10"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.562" />
 
     <TextView
         android:id="@+id/timeValue"
@@ -69,15 +69,15 @@
         android:id="@+id/textView7"
         android:layout_width="50dp"
         android:layout_height="25dp"
-        android:layout_marginBottom="36dp"
-        android:background="@color/material_dynamic_neutral80"
+        android:layout_marginBottom="40dp"
+        android:background="#BA9898"
         android:text="Time"
         android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="@+id/textView8"
         app:layout_constraintEnd_toStartOf="@+id/timeValue"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.849"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -92,6 +92,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/dateValue"
         app:layout_constraintTop_toTopOf="@+id/dateValue"
-        app:layout_constraintVertical_bias="0.833" />
+        app:layout_constraintVertical_bias="0.833"
+        android:backgroundTint= "#6E0B14"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

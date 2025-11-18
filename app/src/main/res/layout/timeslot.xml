@@ -9,7 +9,7 @@
         android:id="@+id/textView12"
         android:layout_width="139dp"
         android:layout_height="56dp"
-        android:background="@android:color/holo_blue_bright"
+        android:background="#900F06"
         android:text="OTAMS"
         android:textColor="@android:color/white"
         android:textSize="40sp"
@@ -29,7 +29,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.279"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:backgroundTint= "#6E0B14"/>
 
     <TextView
         android:id="@+id/textView5"
@@ -134,7 +135,8 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/addButton" />
+        app:layout_constraintStart_toEndOf="@+id/addButton"
+        android:backgroundTint= "#6E0B14"/>
 
     <Switch
         android:id="@+id/autoAcceptSwitch"

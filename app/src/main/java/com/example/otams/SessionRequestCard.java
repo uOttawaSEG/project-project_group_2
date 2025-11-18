@@ -31,7 +31,6 @@ public class SessionRequestCard extends AppCompatActivity {
         }
         sessionRequestList = findViewById(R.id.sessionRequestList);
         Button backButton = findViewById(R.id.back);
-        Button requestButton = findViewById(R.id.requestbtn);
 
 
         // Initialize database
@@ -48,9 +47,6 @@ public class SessionRequestCard extends AppCompatActivity {
             Intent intent = new Intent(SessionRequestCard.this, TutorConsoleActivity.class);
             startActivity(intent);
             finish();
-        });
-        requestButton.setOnClickListener(v -> {
-            db.addSessionRequest(2,3,System.currentTimeMillis(),false);
         });
     }
 

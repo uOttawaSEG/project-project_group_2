@@ -57,7 +57,7 @@
         android:orientation="vertical"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/futureBtn"
+        app:layout_constraintStart_toStartOf="@+id/backbtns"
         app:layout_constraintTop_toBottomOf="@+id/sectionTitle" />
 
 
@@ -87,14 +87,15 @@
 
 
     <Button
-        android:id="@+id/futureBtn"
+        android:id="@+id/backbtns"
         android:layout_width="117dp"
         android:layout_height="51dp"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="#6E0B14"
         android:text="Future"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/pastBtn"
@@ -105,7 +106,7 @@
         android:backgroundTint="#6E0B14"
         android:text="Past"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/futureBtn" />
+        app:layout_constraintStart_toEndOf="@+id/backbtns" />
 
     <Button
         android:id="@+id/logOffBtn"
@@ -119,6 +120,19 @@
         app:layout_constraintStart_toEndOf="@+id/pastBtn"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.977" />
+
+    <Button
+        android:id="@+id/searchbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="search"
+        android:backgroundTint="#6E0B14"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.891" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
