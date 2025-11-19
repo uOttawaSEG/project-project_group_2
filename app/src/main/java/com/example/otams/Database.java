@@ -603,7 +603,14 @@ public class Database extends SQLiteOpenHelper {
         cv.put(periodID, periodId);
         cv.put("id", studentId);
         cv.put("requestDate", requestDate);
-        cv.put("status", autoApprove ? "approved" : "pending");
+        if (autoApprove) {
+            bookPeriod(periodId, String.valueOf(studentId));
+        } else {
+            cv.put("status", "pending");
+        }
+
+
+
         return db.insert(SessionRequests, null, cv);
     }
     public boolean approveRequest(int requestIdValue) {

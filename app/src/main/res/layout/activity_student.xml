@@ -49,17 +49,21 @@
         app:layout_constraintStart_toStartOf="@+id/pastSessionText"
         app:layout_constraintTop_toTopOf="@+id/pastSessionText" />
 
+
     <LinearLayout
         android:id="@+id/futureSessions"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="vertical"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
         android:visibility="visible"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/pastBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/backbtns"
-        app:layout_constraintTop_toBottomOf="@+id/sectionTitle" />
-
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sectionTitle"
+        app:layout_constraintVertical_bias="0.028" />
 
     <TextView
         android:id="@+id/pastSessionText"
@@ -73,18 +77,21 @@
         app:layout_constraintStart_toStartOf="@+id/pastSessions"
         app:layout_constraintTop_toTopOf="@+id/pastSessions" />
 
+
     <LinearLayout
         android:id="@+id/pastSessions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:orientation="vertical"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/pastBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintTop_toBottomOf="@+id/sectionTitle"
+        app:layout_constraintVertical_bias="0.028" />
 
     <Button
         android:id="@+id/backbtns"
@@ -101,7 +108,7 @@
         android:id="@+id/pastBtn"
         android:layout_width="110dp"
         android:layout_height="51dp"
-        android:layout_marginStart="28dp"
+        android:layout_marginStart="24dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="#6E0B14"
         android:text="Past"
@@ -116,23 +123,34 @@
         android:text="Log Off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.636"
+        app:layout_constraintHorizontal_bias="0.589"
         app:layout_constraintStart_toEndOf="@+id/pastBtn"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.977" />
+        app:layout_constraintVertical_bias="0.975" />
 
     <Button
         android:id="@+id/searchbtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="search"
         android:backgroundTint="#6E0B14"
+        android:text="search"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.891" />
+        app:layout_constraintVertical_bias="0.882" />
+
+    <ImageView
+        android:id="@+id/refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/searchbtn"
+        app:layout_constraintHorizontal_bias="0.058"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@android:drawable/ic_popup_sync" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

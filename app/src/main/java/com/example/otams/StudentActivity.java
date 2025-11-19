@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ public class StudentActivity extends AppCompatActivity {
     private LinearLayout futureSessions;
     private LinearLayout pastSessions;
     private TextView sectionTitle;
+    private ImageView refreshbtn;
     Log log;
 
 
@@ -45,6 +47,9 @@ public class StudentActivity extends AppCompatActivity {
         futureSessions = findViewById(R.id.futureSessions);
         pastSessions = findViewById(R.id.pastSessions);
         sectionTitle = findViewById(R.id.sectionTitle);
+        refreshbtn= findViewById(R.id.refresh);
+
+
 
         Button search = findViewById(R.id.searchbtn);
         search.setOnClickListener(v -> {
@@ -52,6 +57,9 @@ public class StudentActivity extends AppCompatActivity {
             intent.putExtra("studentId", studentId);
             startActivity(intent);
             finish();
+        });
+        refreshbtn.setOnClickListener(v -> {
+            chargeSession();
         });
 
 
@@ -130,7 +138,7 @@ public class StudentActivity extends AppCompatActivity {
                 Button cancelSessionBtn = new Button(this);
                 cancelSessionBtn.setText("Cancel ");
                 try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                    SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy HH:mm", Locale.getDefault());
                     Date sessionDateTime = sdf.parse(date + " " + startTime);
 
 
@@ -217,9 +225,10 @@ public class StudentActivity extends AppCompatActivity {
                 //check if the session is past
                 boolean isPastSession;
                 try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                    SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy HH:mm", Locale.getDefault());
                     Date sessionDateTime = sdf.parse(date + " " + startTime);
                     isPastSession = sessionDateTime.before(new Date());
+                    log.d("StudentActivity", "isPastSession: " + isPastSession);
                 } catch (ParseException e) {
                     e.printStackTrace();
                     continue;
@@ -227,6 +236,7 @@ public class StudentActivity extends AppCompatActivity {
 
                 try {
                     LinearLayout itemSession = sessionLayout(date, startTime, endTime, tutorName, periodId, isPastSession);
+                    log.d("StudentActivity", "itemSession: " + itemSession);
                     if (isPastSession) {
                         pastSessions.addView(itemSession);
                         hasPastSessions = true;

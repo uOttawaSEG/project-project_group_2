@@ -3,6 +3,7 @@ package com.example.otams;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,7 @@ public class StudentSearchActivity extends AppCompatActivity{
     private Cursor results;
     private String queryS;
     private int studentId;
+    Log log;
     private LinearLayout linearLayout;
     protected void onCreate(Bundle savedInstanceState) {
         studentId = getIntent().getIntExtra("studentId", -1);
@@ -110,11 +112,15 @@ public class StudentSearchActivity extends AppCompatActivity{
             int periodId = cursor.getInt(cursor.getColumnIndexOrThrow("periodID"));
             int slotId = cursor.getInt(cursor.getColumnIndexOrThrow("slotID"));
             int autoApprove = cursor.getInt(cursor.getColumnIndexOrThrow("autoApprove"));
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy HH:mm", Locale.getDefault());
+
             String currentDateTime = sdf.format(new Date());
 
 
             bookBtn.setOnClickListener(v -> {
+                log.d("StudentSearchActivity", "autoApprove" + autoApprove);
+                log.d("StudentSearchActivity", "studentId" + studentId);
+
                 db.addSessionRequest(periodId, slotId, studentId, currentDateTime, autoApprove == 1);
                 Toast.makeText(this, "Session booking requested!", Toast.LENGTH_SHORT).show();
             });
