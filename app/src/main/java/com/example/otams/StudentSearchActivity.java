@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class StudentSearchActivity extends AppCompatActivity{
+    private static final String TAG = "StudentSearchActivity";
     private Database db;
     private ListView listView;
     private Button backbtn;
@@ -31,12 +32,13 @@ public class StudentSearchActivity extends AppCompatActivity{
     private Cursor results;
     private String queryS;
     private int studentId;
-    Log log;
     private LinearLayout linearLayout;
+    
     protected void onCreate(Bundle savedInstanceState) {
-        studentId = getIntent().getIntExtra("studentId", -1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search_student);
+        
+        studentId = getIntent().getIntExtra("studentId", -1);
         db = new Database(this);
         linearLayout=findViewById(R.id.linearlayout);
         backbtn = findViewById(R.id.backbtns);
@@ -118,11 +120,26 @@ public class StudentSearchActivity extends AppCompatActivity{
 
 
             bookBtn.setOnClickListener(v -> {
-                log.d("StudentSearchActivity", "autoApprove" + autoApprove);
-                log.d("StudentSearchActivity", "studentId" + studentId);
+                Log.d(TAG, "Booking request - autoApprove: " + autoApprove + ", studentId: " + studentId);
 
-                db.addSessionRequest(periodId, slotId, studentId, currentDateTime, autoApprove == 1);
-                Toast.makeText(this, "Session booking requested!", Toast.LENGTH_SHORT).show();
+                // Validation: Check if student already has a request for this period
+                if (db.studentHasExistingRequestForPeriod(studentId, periodId)) {
+                    Toast.makeText(this, "You already have a pending or approved request for this session!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // Validation: Check for overlapping sessions
+                if (db.studentHasOverlappingSession(studentId, periodId)) {
+                    Toast.makeText(this, "You have another session at the same time!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                long result = db.addSessionRequest(periodId, slotId, studentId, currentDateTime, autoApprove == 1);
+                if (result != -1) {
+                    Toast.makeText(this, autoApprove == 1 ? "Session booked!" : "Session request submitted!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Failed to request session. Please try again.", Toast.LENGTH_SHORT).show();
+                }
             });
 
             // Add the item to the container

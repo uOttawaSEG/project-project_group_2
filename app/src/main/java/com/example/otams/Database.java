@@ -596,6 +596,61 @@ public class Database extends SQLiteOpenHelper {
                 null
         );
     }
+    // Check if student already has a pending or approved request for this period
+    public boolean studentHasExistingRequestForPeriod(int studentId, int periodId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT COUNT(*) FROM sessionRequests WHERE id = ? AND periodID = ? AND status IN ('pending', 'approved')",
+                new String[]{String.valueOf(studentId), String.valueOf(periodId)}
+        );
+        boolean exists = false;
+        if (cursor.moveToFirst()) {
+            exists = cursor.getInt(0) > 0;
+        }
+        cursor.close();
+        return exists;
+    }
+
+    // Check if student has overlapping sessions (approved or pending) at the same date/time
+    public boolean studentHasOverlappingSession(int studentId, int periodId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        
+        // First get the date and time of the period we're trying to book
+        Cursor periodCursor = db.rawQuery(
+                "SELECT s.date, p.startTime, p.endTime FROM periods p " +
+                "JOIN slots s ON p.slotID = s.id WHERE p.periodID = ?",
+                new String[]{String.valueOf(periodId)}
+        );
+        
+        if (!periodCursor.moveToFirst()) {
+            periodCursor.close();
+            return false;
+        }
+        
+        String date = periodCursor.getString(0);
+        String startTime = periodCursor.getString(1);
+        String endTime = periodCursor.getString(2);
+        periodCursor.close();
+        
+        // Check for overlapping sessions
+        Cursor overlapCursor = db.rawQuery(
+                "SELECT COUNT(*) FROM sessionRequests sr " +
+                "JOIN periods p ON sr.periodID = p.periodID " +
+                "JOIN slots s ON p.slotID = s.id " +
+                "WHERE sr.id = ? AND sr.status IN ('pending', 'approved') " +
+                "AND s.date = ? " +
+                "AND NOT (p.endTime <= ? OR p.startTime >= ?)",
+                new String[]{String.valueOf(studentId), date, startTime, endTime}
+        );
+        
+        boolean hasOverlap = false;
+        if (overlapCursor.moveToFirst()) {
+            hasOverlap = overlapCursor.getInt(0) > 0;
+        }
+        overlapCursor.close();
+        return hasOverlap;
+    }
+
     public long addSessionRequest(int periodId, int slotId, int studentId, String requestDate, boolean autoApprove) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
@@ -605,6 +660,7 @@ public class Database extends SQLiteOpenHelper {
         cv.put("requestDate", requestDate);
         if (autoApprove) {
             bookPeriod(periodId, String.valueOf(studentId));
+            cv.put("status", "approved");
         } else {
             cv.put("status", "pending");
         }
@@ -682,6 +738,36 @@ public class Database extends SQLiteOpenHelper {
                 "ORDER BY  s.date ASC, p.startTime ASC";
 
         return db.rawQuery(query, new String[]{String.valueOf(studentId)});
+    }
+
+    // Get ALL student sessions (pending/approved/rejected) - includes status
+    public Cursor getAllStudentSessions(int studentId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT sr.requestId, p.periodID, s.date, p.startTime, p.endTime, " +
+                "u.firstName || ' ' || u.lastName AS tutorName, sr.status " +
+                "FROM sessionRequests sr " +
+                "JOIN periods p ON sr.periodID = p.periodID " +
+                "JOIN slots s ON p.slotID = s.id " +
+                "JOIN users u ON s.tutorId = u.id " +
+                "WHERE sr.id = ? " +
+                "ORDER BY s.date ASC, p.startTime ASC";
+        
+        return db.rawQuery(query, new String[]{String.valueOf(studentId)});
+    }
+
+    // Check if a slot has any approved or pending sessions
+    public boolean slotHasBookings(int slotId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT COUNT(*) FROM sessionRequests WHERE slotID = ? AND status IN ('pending', 'approved')",
+                new String[]{String.valueOf(slotId)}
+        );
+        boolean hasBookings = false;
+        if (cursor.moveToFirst()) {
+            hasBookings = cursor.getInt(0) > 0;
+        }
+        cursor.close();
+        return hasBookings;
     }
 
     public boolean cancelTutoringSessionStudent(int periodId){
