@@ -793,10 +793,10 @@ public class Database extends SQLiteOpenHelper {
                         "FROM periods p " +
                         "JOIN users u ON p.tutorId = u.ID " +
                         "JOIN slots s ON p.slotID = s.id " +
-                        "WHERE u.course = ? AND p.studentBooking IS NULL " +
+                        "WHERE u.course LIKE ? AND p.studentBooking IS NULL " +
                         "ORDER BY p.startTime ASC";
 
-        return db.rawQuery(query, new String[]{courseName});
+        return db.rawQuery(query, new String[]{'%'+courseName+'%'});
     }
 
 
