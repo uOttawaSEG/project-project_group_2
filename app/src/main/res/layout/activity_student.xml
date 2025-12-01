@@ -93,6 +93,27 @@
         app:layout_constraintTop_toBottomOf="@+id/sectionTitle"
         app:layout_constraintVertical_bias="0.028" />
 
+    <!-- Rate toolbar for past sessions -->
+    <LinearLayout
+        android:id="@+id/pastSessionsToolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/pastSessions"
+        app:layout_constraintEnd_toEndOf="@+id/pastSessions"
+        app:layout_constraintTop_toTopOf="@+id/pastSessions">
+
+        <Button
+            android:id="@+id/ratePastSessionsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rate"
+            android:textAllCaps="false"
+            android:backgroundTint="#6E0B14" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/backbtns"
         android:layout_width="117dp"
