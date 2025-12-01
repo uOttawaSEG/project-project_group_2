@@ -134,15 +134,21 @@ public class TutorConsoleActivity  extends AppCompatActivity {
                 dateText.setText(date);
                 timeText.setText(startTime + " - " + endTime);
 
-                deleteButton.setOnClickListener(v -> {
-                    boolean deleted = db.removeSlot(slotId);
-                    if (deleted) {
-                        Toast.makeText(this, "Slot deleted", Toast.LENGTH_SHORT).show();
-                        loadAndDisplaySlots(); // refresh the list after deleting
-                    } else {
-                        Toast.makeText(this, "Failed to delete slot", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                if(db.slotHasBookings(slotId)){
+                    deleteButton.setEnabled(false);
+                    deleteButton.setText("Booked");
+                    deleteButton.setOnClickListener(v -> Toast.makeText(this,"Cannot delete: has bookings",Toast.LENGTH_SHORT).show());
+                } else {
+                    deleteButton.setOnClickListener(v -> {
+                        boolean deleted = db.removeSlot(slotId);
+                        if (deleted) {
+                            Toast.makeText(this, "Slot deleted", Toast.LENGTH_SHORT).show();
+                            loadAndDisplaySlots(); // refresh the list after deleting
+                        } else {
+                            Toast.makeText(this, "Failed to delete slot", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
 
                 slotList.addView(slotView);
             }

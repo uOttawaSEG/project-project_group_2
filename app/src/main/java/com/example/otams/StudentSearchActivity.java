@@ -70,7 +70,7 @@ public class StudentSearchActivity extends AppCompatActivity{
     }
 
     private void search(String query) {
-        Cursor cursor = db.SearchperiodBycoursename(query);
+        Cursor cursor = db.SearchperiodBycoursename(query, studentId);
         if (cursor == null) {
             return;
         }
@@ -137,6 +137,14 @@ public class StudentSearchActivity extends AppCompatActivity{
                 long result = db.addSessionRequest(periodId, slotId, studentId, currentDateTime, autoApprove == 1);
                 if (result != -1) {
                     Toast.makeText(this, autoApprove == 1 ? "Session booked!" : "Session request submitted!", Toast.LENGTH_SHORT).show();
+                    // Refresh search results to immediately hide this period for this student
+                    String currentQuery = searchView.getQuery() != null ? searchView.getQuery().toString() : "";
+                    if (!currentQuery.isEmpty()) {
+                        Cursor refreshed = db.SearchperiodBycoursename(currentQuery, studentId);
+                        if (results != null) results.close();
+                        results = refreshed;
+                        chargeSession();
+                    }
                 } else {
                     Toast.makeText(this, "Failed to request session. Please try again.", Toast.LENGTH_SHORT).show();
                 }

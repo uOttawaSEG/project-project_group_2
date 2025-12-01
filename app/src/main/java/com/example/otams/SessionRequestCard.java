@@ -66,7 +66,7 @@ public class SessionRequestCard extends AppCompatActivity {
 
         while (cursor.moveToNext()) {
             View card = LayoutInflater.from(this)
-                    .inflate(R.layout.single_session_request, sessionRequestList, false);
+                .inflate(R.layout.item_session_request, sessionRequestList, false);
 
             TextView studentName = card.findViewById(R.id.studentName);
             TextView sessionDateTime = card.findViewById(R.id.sessionDateTime);
@@ -81,9 +81,8 @@ public class SessionRequestCard extends AppCompatActivity {
             String end = cursor.getString(cursor.getColumnIndexOrThrow("end_time"));
             int requestId = cursor.getInt(cursor.getColumnIndexOrThrow("requestId"));
 
-            studentName.setText("Student ID: " + db.getStudentNameById(studentId));
-            studentEmail.setText("Email: " + db.getUserEmailById(studentId));
-
+            studentName.setText(db.getStudentNameById(studentId));
+            studentEmail.setText(db.getUserEmailById(studentId));
             sessionDateTime.setText(date + " " + start + " - " + end);
 
             approve.setOnClickListener(v -> {

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:padding="20dp"
+	android:paddingTop="56dp"  
+	android:fitsSystemWindows="true"
+	android:background="#FFFFFF">
+
+	<TextView
+		android:id="@+id/rateTitle"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Rate Tutor"
+		android:textStyle="bold"
+		android:textSize="18sp" />
+
+	<TextView
+		android:id="@+id/rateSubtitle"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="4dp"
+		android:text="How was your session?" />
+
+	<RatingBar
+		android:id="@+id/ratingBar"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="12dp"
+		android:numStars="5"
+		android:rating="0"
+		android:stepSize="1.0" />
+
+	<Button
+        android:id="@+id/submitRatingBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#6E0B14"
+        android:text="Submit" />
+
+</LinearLayout>

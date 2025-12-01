@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 
@@ -104,54 +105,42 @@ public class StudentActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        db.markCompletedSessionsForStudent(studentId);
         chargeSession();
     }
 
-    public  LinearLayout sessionLayout(String date, String startTime, String endTime, String tutorName, String status, int requestId, int periodId, boolean isPastSession) throws ParseException {
+    public  LinearLayout sessionLayout(String date, String startTime, String endTime, String tutorName, String status, int requestId, int periodId, boolean isPastSession, int tutorId, boolean rated) throws ParseException {
+        android.view.LayoutInflater inflater = android.view.LayoutInflater.from(this);
+        LinearLayout sessionInfo =  (LinearLayout) inflater.inflate(R.layout.item_student_session, null);
 
-        LinearLayout sessionInfo =  new LinearLayout(this);
-        sessionInfo.setPadding(8, 8, 8, 8);
-        sessionInfo.setOrientation(LinearLayout.VERTICAL);
+        TextView dateText = sessionInfo.findViewById(R.id.sessionDate);
+        TextView timeText = sessionInfo.findViewById(R.id.sessionTime);
+        TextView tutorText = sessionInfo.findViewById(R.id.tutorName);
+        TextView statusText = sessionInfo.findViewById(R.id.statusBadge);
+        LinearLayout actions = sessionInfo.findViewById(R.id.sessionActions);
+        Button cancelSessionBtn = sessionInfo.findViewById(R.id.cancelSessionBtn);
+        Button rateSessionBtn = sessionInfo.findViewById(R.id.rateSessionBtn);
 
-        //date of session
-        TextView dateText = new TextView(this);
         dateText.setText(date);
-        sessionInfo.addView(dateText);
-
-        //time of  session
-        TextView timeText = new TextView(this);
-        timeText.setText(startTime + "  -  " + endTime);
-        sessionInfo.addView(timeText);
-
-        //tutor name
-        TextView tutorText = new TextView(this);
+        timeText.setText(startTime + " - " + endTime);
         tutorText.setText(tutorName);
-        sessionInfo.addView(tutorText);
-
-        // Status badge
-        TextView statusText = new TextView(this);
-        statusText.setPadding(16, 8, 16, 8);
-        statusText.setTextSize(12);
         String statusDisplay = status != null ? status : "approved";
         statusText.setText("Status: " + statusDisplay.toUpperCase());
-        
-        // Color code the status
         if ("approved".equalsIgnoreCase(statusDisplay)) {
-            statusText.setTextColor(0xFF4CAF50); // Green
+            statusText.setBackgroundColor(0xFF4CAF50);
         } else if ("pending".equalsIgnoreCase(statusDisplay)) {
-            statusText.setTextColor(0xFFFFA726); // Orange
+            statusText.setBackgroundColor(0xFFFFA726);
         } else if ("rejected".equalsIgnoreCase(statusDisplay)) {
-            statusText.setTextColor(0xFFF44336); // Red
+            statusText.setBackgroundColor(0xFFF44336);
+        } else if ("completed".equalsIgnoreCase(statusDisplay)) {
+            statusText.setBackgroundColor(0xFF2196F3);
         }
-        sessionInfo.addView(statusText);
 
 
 
 
             if( !isPastSession && "approved".equalsIgnoreCase(statusDisplay)){
-
-                Button cancelSessionBtn = new Button(this);
-                cancelSessionBtn.setText("Cancel ");
+                cancelSessionBtn.setVisibility(View.VISIBLE);
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy HH:mm", Locale.getDefault());
                     Date sessionDateTime = sdf.parse(date + " " + startTime);
@@ -161,8 +150,8 @@ public class StudentActivity extends AppCompatActivity {
                     long presentTime = System.currentTimeMillis();
                     long twentyFourHour = 24 * 60 * 60 * 1000; //convert in hours
 
-                    //if (cancel< 24h) ==  cancel  ; else{ cancellation accepted
-                    if (sessionTime - presentTime > twentyFourHour) {
+                    // Allow cancellation until 24 hours prior to session start
+                    if (sessionTime - presentTime >= twentyFourHour) {
                         cancelSessionBtn.setEnabled(true);
                         cancelSessionBtn.setOnClickListener(v -> {
                             db.cancelRequest(requestId);
@@ -173,18 +162,41 @@ public class StudentActivity extends AppCompatActivity {
 
                     } else {
                         cancelSessionBtn.setEnabled(false);
-                        cancelSessionBtn.setText("Cancellation unavailable, session is in less than 24 hours");
+                        cancelSessionBtn.setText("Cancellation unavailable (<24h)");
                     }
                 } catch(ParseException e){
                     e.printStackTrace();
                     cancelSessionBtn.setEnabled(false);
-                    cancelSessionBtn.setText("Error");
                     cancelSessionBtn.setVisibility(View.GONE);
 
                 }
-
-                sessionInfo.addView(cancelSessionBtn);
             }
+
+        if(isPastSession && "completed".equalsIgnoreCase(statusDisplay) && !rated){
+            rateSessionBtn.setVisibility(View.VISIBLE);
+            rateSessionBtn.setOnClickListener(v -> {
+                android.view.LayoutInflater li = android.view.LayoutInflater.from(StudentActivity.this);
+                View dialogView = li.inflate(R.layout.dialog_rate_tutor,null);
+                android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(StudentActivity.this)
+                        .setView(dialogView)
+                        .create();
+                android.widget.RatingBar rb = dialogView.findViewById(R.id.ratingBar);
+                Button submit = dialogView.findViewById(R.id.submitRatingBtn);
+                submit.setOnClickListener(btn -> {
+                    int value = Math.round(rb.getRating());
+                    if(value < 1){
+                        Toast.makeText(StudentActivity.this,"Select a rating",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    db.calculateTutorNewRating(tutorId,value);
+                    db.markRequestRated(requestId);
+                    Toast.makeText(StudentActivity.this,"Rating submitted",Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    chargeSession();
+                });
+                dialog.show();
+            });
+        }
 
 
         return sessionInfo;
@@ -233,6 +245,8 @@ public class StudentActivity extends AppCompatActivity {
                 int periodId = cursor.getInt(cursor.getColumnIndexOrThrow("periodID"));
                 String tutorName = cursor.getString(cursor.getColumnIndexOrThrow("tutorName"));
                 String status = cursor.getString(cursor.getColumnIndexOrThrow("status"));
+                int tutorId = cursor.getInt(cursor.getColumnIndexOrThrow("tutorId"));
+                boolean rated = cursor.getInt(cursor.getColumnIndexOrThrow("rated"))==1;
                 Log.d(TAG, "PeriodId: "+periodId + ", Status: " + status);
 
 
@@ -253,7 +267,7 @@ public class StudentActivity extends AppCompatActivity {
                 }
 
                 try {
-                    LinearLayout itemSession = sessionLayout(date, startTime, endTime, tutorName, status, requestId, periodId, isPastSession);
+                    LinearLayout itemSession = sessionLayout(date, startTime, endTime, tutorName, status, requestId, periodId, isPastSession, tutorId, rated);
                     Log.d(TAG, "Created session layout for period: " + periodId);
                     if (isPastSession) {
                         pastSessions.addView(itemSession);
@@ -277,8 +291,18 @@ public class StudentActivity extends AppCompatActivity {
         }finally{
             cursor.close();
         }
-
-
+        if(!hasFutureSessions){
+            TextView emptyFuture = new TextView(this);
+            emptyFuture.setText("No upcoming sessions");
+            emptyFuture.setPadding(0, 24, 0, 0);
+            futureSessions.addView(emptyFuture);
+        }
+        if(!hasPastSessions){
+            TextView emptyPast = new TextView(this);
+            emptyPast.setText("No past sessions");
+            emptyPast.setPadding(0, 24, 0, 0);
+            pastSessions.addView(emptyPast);
+        }
 
 
     }

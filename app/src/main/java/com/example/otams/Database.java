@@ -20,7 +20,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String TABLE_USERS = "users";
     private static final String DATABASE_NAME = "userInfo.db";
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     private static final String Id = "id";
     private static final String Role = "role";
@@ -54,6 +54,7 @@ public class Database extends SQLiteOpenHelper {
     private static final String tutorRating = "tutorRating";
     private static final String numberOfRatings = "numberofRatings";
     private static final String tutorId = "tutorId";
+    private static final String ratedCol = "rated"; // 0 = not rated, 1 = rated
 
 
 
@@ -115,15 +116,16 @@ public class Database extends SQLiteOpenHelper {
 
         db.execSQL(CREATE_TABLE_PERIODS);
         String CREATE_TABLE_SESSION_REQUESTS = "CREATE TABLE " + SessionRequests + " (" +
-                requestId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                slotID + " INTEGER NOT NULL, " +
-                Id + " INTEGER NOT NULL, " +
-                periodID + " INTEGER, " +
-                "requestDate TEXT, " +
-                "status TEXT DEFAULT 'pending', " +
-                "FOREIGN KEY(" + slotID + ") REFERENCES " + slotTable + "(" + idSlot + "), " +
-                "FOREIGN KEY(" + Id + ") REFERENCES " + TABLE_USERS + "(" + Id + ")" +
-                ");";
+            requestId + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            slotID + " INTEGER NOT NULL, " +
+            Id + " INTEGER NOT NULL, " +
+            periodID + " INTEGER, " +
+            "requestDate TEXT, " +
+            "status TEXT DEFAULT 'pending', " +
+            ratedCol + " INTEGER DEFAULT 0, " +
+            "FOREIGN KEY(" + slotID + ") REFERENCES " + slotTable + "(" + idSlot + "), " +
+            "FOREIGN KEY(" + Id + ") REFERENCES " + TABLE_USERS + "(" + Id + ")" +
+            ");";
         db.execSQL(CREATE_TABLE_SESSION_REQUESTS);
 
 
@@ -664,8 +666,7 @@ public class Database extends SQLiteOpenHelper {
         } else {
             cv.put("status", "pending");
         }
-
-
+        cv.put(ratedCol, 0); // not rated yet
 
         return db.insert(SessionRequests, null, cv);
     }
@@ -717,6 +718,23 @@ public class Database extends SQLiteOpenHelper {
         int updated = db.update(SessionRequests, cv, requestId + " = ?", new String[]{String.valueOf(requestIdValue)});
         return updated > 0;
     }
+    public boolean markRequestRated(int requestIdValue){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(ratedCol,1);
+        int updated = db.update(SessionRequests, cv, requestId + " = ?", new String[]{String.valueOf(requestIdValue)});
+        return updated>0;
+    }
+    public boolean isRequestRated(int requestIdValue){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + ratedCol + " FROM " + SessionRequests + " WHERE " + requestId + " = ?", new String[]{String.valueOf(requestIdValue)});
+        boolean rated = false;
+        if(cursor.moveToFirst()){
+            rated = cursor.getInt(cursor.getColumnIndexOrThrow(ratedCol))==1;
+        }
+        cursor.close();
+        return rated;
+    }
     public Cursor getPendingRequestsForTutor(int tutorId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
@@ -744,7 +762,7 @@ public class Database extends SQLiteOpenHelper {
     public Cursor getAllStudentSessions(int studentId) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT sr.requestId, p.periodID, s.date, p.startTime, p.endTime, " +
-                "u.firstName || ' ' || u.lastName AS tutorName, sr.status " +
+                "u.firstName || ' ' || u.lastName AS tutorName, sr.status, u.id AS tutorId, sr."+ratedCol+" AS rated " +
                 "FROM sessionRequests sr " +
                 "JOIN periods p ON sr.periodID = p.periodID " +
                 "JOIN slots s ON p.slotID = s.id " +
@@ -753,6 +771,27 @@ public class Database extends SQLiteOpenHelper {
                 "ORDER BY s.date ASC, p.startTime ASC";
         
         return db.rawQuery(query, new String[]{String.valueOf(studentId)});
+    }
+    public void markCompletedSessionsForStudent(int studentId){
+        // Iterate approved sessions and mark completed if end time is in past
+        Cursor cursor = getAllStudentSessions(studentId);
+        if(cursor==null) return;
+        long now = System.currentTimeMillis();
+        while(cursor.moveToNext()){
+            String status = cursor.getString(cursor.getColumnIndexOrThrow("status"));
+            if(!"approved".equalsIgnoreCase(status)) continue;
+            int reqId = cursor.getInt(cursor.getColumnIndexOrThrow("requestId"));
+            String dateStr = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+            String endTimeStr = cursor.getString(cursor.getColumnIndexOrThrow("endTime"));
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEE, MMM dd, yyyy HH:mm", java.util.Locale.getDefault());
+                java.util.Date endDateTime = sdf.parse(dateStr + " " + endTimeStr);
+                if(endDateTime!=null && endDateTime.getTime() < now){
+                    updateRequestStatus(reqId,"completed");
+                }
+            } catch(Exception ignored){}
+        }
+        cursor.close();
     }
 
     // Check if a slot has any approved or pending sessions
@@ -778,7 +817,7 @@ public class Database extends SQLiteOpenHelper {
         return updatedRows > 0;
 
     }
-    public Cursor SearchperiodBycoursename(String courseName) {
+    public Cursor SearchperiodBycoursename(String courseName, int studentId) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String query =
@@ -794,9 +833,15 @@ public class Database extends SQLiteOpenHelper {
                         "JOIN users u ON p.tutorId = u.ID " +
                         "JOIN slots s ON p.slotID = s.id " +
                         "WHERE u.course LIKE ? AND p.studentBooking IS NULL " +
+                        "AND NOT EXISTS ( " +
+                        "    SELECT 1 FROM sessionRequests sr " +
+                        "    WHERE sr.periodID = p.periodID " +
+                        "      AND sr.id = ? " +
+                        "      AND sr.status IN ('pending','approved') " +
+                        ") " +
                         "ORDER BY p.startTime ASC";
 
-        return db.rawQuery(query, new String[]{'%'+courseName+'%'});
+        return db.rawQuery(query, new String[]{'%'+courseName+'%', String.valueOf(studentId)});
     }
 
 
