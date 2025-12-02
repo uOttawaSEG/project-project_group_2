@@ -55,7 +55,7 @@ public class StudentActivity extends AppCompatActivity {
             Intent intent =new Intent(StudentActivity.this, StudentSearchActivity.class);
             intent.putExtra("studentId", studentId);
             startActivity(intent);
-            finish();
+            //finish();
         });
         refreshbtn.setOnClickListener(v -> {
             chargeSession();
@@ -157,7 +157,8 @@ public class StudentActivity extends AppCompatActivity {
                             db.cancelRequest(requestId);
                             db.cancelTutoringSessionStudent(periodId);
                             Toast.makeText(StudentActivity.this, "Session cancelled", Toast.LENGTH_SHORT).show();
-                            chargeSession();
+                            futureSessions.removeView(sessionInfo);
+                            //chargeSession();
                         });
 
                     } else {

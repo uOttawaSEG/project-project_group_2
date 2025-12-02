@@ -847,13 +847,17 @@ public class Database extends SQLiteOpenHelper {
 
     public void calculateTutorNewRating(int tutorID,int newRating) {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT tutorRating FROM users WHERE id = ?", new String[]{String.valueOf(tutorID)});
+        Cursor cursor = db.rawQuery("SELECT tutorRating, numberOfRatings FROM users WHERE id = ?", new String[]{String.valueOf(tutorID)});
         float currentRating=-1;
         int numberofRatings=-1;
         if (cursor.moveToFirst()) {
             currentRating = cursor.getInt(cursor.getColumnIndexOrThrow("tutorRating"));
             numberofRatings = cursor.getInt(cursor.getColumnIndexOrThrow("numberOfRatings"));
+        }
+        cursor.close();
 
+        if (numberofRatings == -1){
+            return;
         }
         float newAverage = (currentRating * numberofRatings + newRating) / (numberofRatings + 1);
         numberofRatings++;

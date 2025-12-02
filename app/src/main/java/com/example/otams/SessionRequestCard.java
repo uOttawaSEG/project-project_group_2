@@ -45,6 +45,7 @@ public class SessionRequestCard extends AppCompatActivity {
         // Back button listener
         backButton.setOnClickListener(v -> {
             Intent intent = new Intent(SessionRequestCard.this, TutorConsoleActivity.class);
+            intent.putExtra("tutorId", tutorId);
             startActivity(intent);
             finish();
         });

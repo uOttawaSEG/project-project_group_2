@@ -59,7 +59,7 @@ public class StudentSearchActivity extends AppCompatActivity{
             }
                                           });
         backbtn.setOnClickListener(v -> {
-            startActivity(new Intent(StudentSearchActivity.this, StudentActivity.class));
+            //startActivity(new Intent(StudentSearchActivity.this, StudentActivity.class));
             finish();
         });
         chargeSession();
